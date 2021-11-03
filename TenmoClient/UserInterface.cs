@@ -38,8 +38,6 @@ namespace TenmoClient
             else if (loginRegister == 1)
             {
                 HandleUserLogin();
-
-
             }
             else if (loginRegister == 2)
             {
@@ -133,8 +131,7 @@ namespace TenmoClient
             while (!UserService.IsLoggedIn) //will keep looping until user is logged in
             {
                 LoginUser loginUser = consoleService.PromptForLogin();
-                ;
-
+                
                 if (authService.Login(loginUser))
                 {
                     balanceApi = new TransferApi(UserService.Token);

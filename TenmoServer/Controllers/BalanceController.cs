@@ -22,13 +22,13 @@ namespace TenmoServer.Controllers
         [HttpGet("{userId}")]
         public ActionResult GetBalance(int userId)
         {
-            Balance accountBalance = balance.GetBalance(userId);
+            Balance newBalance = balance.GetBalance(userId);
 
-            if (accountBalance.UserID != userId)
+            if (newBalance.UserID != userId)
             {
                 return Forbid();
             }
-            return Ok();
+            return Ok(newBalance);
         }
     }
 }

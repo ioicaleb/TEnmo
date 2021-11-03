@@ -3,19 +3,25 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TenmoServer.DAO;
 
 namespace TenmoServer.Controllers
 {
-    [Route("/[controller]")]
+    [Route("[controller]")]
     [ApiController]
    public class TransferController : ControllerBase
     {
-        /*public ActionResult SendTransfer()
+        private readonly ITransferDAO transfer;
+
+        public TransferController(ITransferDAO transfer)
         {
+            this.transfer = transfer;
+        }
 
-
-
-            return null;
-        }*/
+        [HttpGet]
+        public ActionResult GetPastTransfers()
+        {
+            return Ok();
+        }
     }
 }
