@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace TenmoServer.Controllers
 {
-   /* [Route("[controller]")]
+    [Route("/[controller]")]
     [ApiController]
     public class TransferController : ControllerBase
     {
-        public IActionResult Index()
+        public ActionResult SendTransfer()
         {
             return null;
         }
-    }*/
+    }
 }

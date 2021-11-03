@@ -8,7 +8,7 @@ using TenmoServer.DAO;
 
 namespace TenmoServer.Controllers
 {
-    [Route("/balance")]
+    [Route("/[controller]")]
     [Authorize]
     public class BalanceController : ControllerBase
     {

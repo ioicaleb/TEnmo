@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using TenmoClient.Data;
-using TenmoServer.DAO;
-using RestSharp;
-using TenmoClient.Models;
+﻿using RestSharp;
 using RestSharp.Authenticators;
+
 namespace TenmoClient
 {
    
