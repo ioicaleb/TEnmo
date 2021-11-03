@@ -14,7 +14,7 @@ namespace TenmoClient
         {
             while (!quitRequested)
             {
-                while (!authService.IsLoggedIn)
+                while (!UserService.IsLoggedIn)
                 {
                     ShowLogInMenu();
                 }
