@@ -7,7 +7,7 @@ namespace TenmoClient
     {
         private readonly ConsoleService consoleService = new ConsoleService();
         private readonly AuthService authService = new AuthService();
-
+        private  BalanceApiClient balanceApi;
         private bool quitRequested = false;
 
         public void Start()
@@ -38,6 +38,8 @@ namespace TenmoClient
             else if (loginRegister == 1)
             {
                 HandleUserLogin();
+
+
             }
             else if (loginRegister == 2)
             {
@@ -75,7 +77,7 @@ namespace TenmoClient
                     switch (menuSelection)
                     {
                         case 1: // View Balance
-                            Console.WriteLine("NOT IMPLEMENTED!"); // TODO: Implement me
+                            Console.WriteLine(balanceApi.GetBalance(UserService.UserId).ToString("C"));
                             break;
 
                         case 2: // View Past Transfers
@@ -131,7 +133,12 @@ namespace TenmoClient
             while (!UserService.IsLoggedIn) //will keep looping until user is logged in
             {
                 LoginUser loginUser = consoleService.PromptForLogin();
-                authService.Login(loginUser);
+                ;
+
+                if (authService.Login(loginUser))
+                {
+                    balanceApi = new BalanceApiClient(UserService.Token);
+                }
             }
         }
     }
