@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TenmoServer.Models;
 
 namespace TenmoServer.DAO
 {
-   public interface IBalanceDAO
+    public interface ITransferDAO
     {
-        Balance GetBalance(int userId);
+
     }
 }

@@ -9,27 +9,27 @@ using RestSharp.Authenticators;
 namespace TenmoClient
 {
    
-    public class BalanceApiClient
+    public class TransferApi
     {
-        private readonly string baseURL = "https://localhost:44315/balance";
+        private readonly string baseURL = "https://localhost:44315/";
         private RestClient client = new RestClient();
 
-        public BalanceApiClient(string apiToken)
+        public TransferApi(string apiToken)
         {
           client.Authenticator = new JwtAuthenticator(apiToken);
         }
 
-        public BalanceApiClient(RestClient client)
+        public TransferApi(RestClient client)
         {
             this.client = client;
         }
         
         public decimal GetBalance(int userId)
         {
-            RestRequest request = new RestRequest(baseURL+ $"/{userId}");
+            RestRequest request = new RestRequest(baseURL+ $"balance/{userId}");
             
-            IRestResponse<decimal> response = client.Get<decimal>(request);
-            return response.Data;
+            IRestResponse<Balance> response = client.Get<Balance>(request);
+            return response.Data.AccountBalance;
             
         }
     }

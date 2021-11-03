@@ -7,7 +7,7 @@ namespace TenmoClient
     {
         private readonly ConsoleService consoleService = new ConsoleService();
         private readonly AuthService authService = new AuthService();
-        private  BalanceApiClient balanceApi;
+        private  TransferApi balanceApi;
         private bool quitRequested = false;
 
         public void Start()
@@ -137,7 +137,7 @@ namespace TenmoClient
 
                 if (authService.Login(loginUser))
                 {
-                    balanceApi = new BalanceApiClient(UserService.Token);
+                    balanceApi = new TransferApi(UserService.Token);
                 }
             }
         }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TenmoServer.DAO;
+using TenmoServer.Models;
 
 namespace TenmoServer.Controllers
 {
@@ -21,7 +22,13 @@ namespace TenmoServer.Controllers
         [HttpGet("{userId}")]
         public ActionResult GetBalance(int userId)
         {
-            return Ok(this.balance.GetBalance(userId));
+            Balance accountBalance = balance.GetBalance(userId);
+
+            if (accountBalance.UserID != userId)
+            {
+                return Forbid();
+            }
+            return Ok();
         }
     }
 }
