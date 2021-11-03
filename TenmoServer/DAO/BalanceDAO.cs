@@ -31,7 +31,6 @@ namespace TenmoServer.DAO
                 Balance balance = new Balance();
                 while (reader.Read())
                 {
-
                     balance.AccountBalance = Convert.ToDecimal(reader["balance"]);
                     balance.UserID = Convert.ToInt32(reader["user_id"]);
                     balance.AccountID = Convert.ToInt32(reader["account_id"]);

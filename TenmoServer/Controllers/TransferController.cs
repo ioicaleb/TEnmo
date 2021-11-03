@@ -8,11 +8,14 @@ namespace TenmoServer.Controllers
 {
     [Route("/[controller]")]
     [ApiController]
-    public class TransferController : ControllerBase
+   public class TransferController : ControllerBase
     {
-        public ActionResult SendTransfer()
+        /*public ActionResult SendTransfer()
         {
+
+
+
             return null;
-        }
+        }*/
     }
 }
