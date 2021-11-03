@@ -6,11 +6,11 @@ namespace TenmoClient.Models
 {
     public class Transfer
     {
-        public int TransferId { get; }
-        public int TransferType { get; }
-        public int TransferStatus { get; set; }
-        public int AccountFrom { get; }
-        public int AccountTo { get; }
+        public int TransferId { get; set; }
+        public string TransferType { get; set; }
+        public string TransferStatus { get; set; }
+        public int AccountFrom { get; set; }
+        public int AccountTo { get; set; }
         public decimal Amount { get; set; }
     }
 }

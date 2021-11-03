@@ -7,7 +7,7 @@ using TenmoServer.DAO;
 
 namespace TenmoServer.Controllers
 {
-    [Route("[controller]")]
+    [Route("/[controller]")]
     [ApiController]
    public class TransferController : ControllerBase
     {
@@ -18,10 +18,10 @@ namespace TenmoServer.Controllers
             this.transfer = transfer;
         }
 
-        [HttpGet]
-        public ActionResult GetPastTransfers()
+        [HttpGet("/{userId}")]
+        public ActionResult GetPastTransfers(int userId)
         {
-            return Ok();
+            return Ok(transfer.GetTransfers(userId));
         }
     }
 }

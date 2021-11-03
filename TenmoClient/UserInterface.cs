@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using TenmoClient.Data;
+using TenmoClient.Models;
 
 namespace TenmoClient
 {
@@ -7,7 +9,7 @@ namespace TenmoClient
     {
         private readonly ConsoleService consoleService = new ConsoleService();
         private readonly AuthService authService = new AuthService();
-        private  TransferApi balanceApi;
+        private TransferApi balanceApi;
         private bool quitRequested = false;
 
         public void Start()
@@ -79,7 +81,18 @@ namespace TenmoClient
                             break;
 
                         case 2: // View Past Transfers
-                            Console.WriteLine("NOT IMPLEMENTED!"); // TODO: Implement me
+                            List<Transfer> transfers = balanceApi.GetTransfers(UserService.UserId);
+                            if (transfers.Count > 0)
+                            {
+                                foreach (Transfer transfer in transfers)
+                                {
+                                    Console.WriteLine(transfer);
+                                }
+                            }
+                            else 
+                            {
+                                Console.WriteLine("Could not find your transfers");
+                            }
                             break;
 
                         case 3: // View Pending Requests
@@ -131,7 +144,7 @@ namespace TenmoClient
             while (!UserService.IsLoggedIn) //will keep looping until user is logged in
             {
                 LoginUser loginUser = consoleService.PromptForLogin();
-                
+
                 if (authService.Login(loginUser))
                 {
                     balanceApi = new TransferApi(UserService.Token);

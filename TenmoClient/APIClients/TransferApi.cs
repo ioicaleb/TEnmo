@@ -1,6 +1,7 @@
 ﻿using RestSharp;
 using RestSharp.Authenticators;
 using System;
+using System.Collections.Generic;
 using TenmoClient.Models;
 
 namespace TenmoClient
@@ -22,24 +23,48 @@ namespace TenmoClient
 
             IRestResponse<Balance> response = client.Get<Balance>(request);
 
-            if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            if (!HandleError(response))
             {
-                Console.WriteLine("You don't have permission to view that account");
-                return 0M;
-            }
-            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                Console.WriteLine("You must be logged in to view account information");
-                return 0M;
-            }
-            if (!response.IsSuccessful)
-            {
-                Console.WriteLine("There was a problem accessing your balnce information");
                 return 0M;
             }
 
             Balance newBalance = response.Data;
             return newBalance.AccountBalance;
+        }
+
+        public List<Transfer> GetTransfers(int userId)
+        {
+            RestRequest request = new RestRequest(baseURL + $"transfer/{userId}");
+
+            IRestResponse<List<Transfer>> response = client.Get<List<Transfer>>(request);
+
+            if (!HandleError(response))
+            {
+                return new List<Transfer>();
+            }
+
+            List<Transfer> transfers = response.Data;
+            return transfers;
+        }
+
+        private bool HandleError(IRestResponse response)
+        {
+            if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            {
+                Console.WriteLine("You don't have permission to view that account");
+                return false;
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                Console.WriteLine("You must be logged in to view account information");
+                return false;
+            }
+            if (!response.IsSuccessful)
+            {
+                Console.WriteLine("There was a problem accessing your account information");
+                return false;
+            }
+            return true;
         }
     }
 }
