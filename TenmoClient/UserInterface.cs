@@ -53,6 +53,7 @@ namespace TenmoClient
 
         private void ShowMainMenu()
         {
+            List<User> users = authService.GetUsers();
             int menuSelection;
             do
             {
@@ -84,19 +85,7 @@ namespace TenmoClient
                         case 2: // View Past Transfers
                             int transferId = consoleService.PromptForTransferID("search");
                             List<Transfer> transfers = balanceApi.GetTransfers(UserService.UserId, transferId);
-                            if (transfers.Count > 0)
-                            {
-                                Console.WriteLine(string.Format("{0,-15}{1,-30}{2}", "Transfer ID", "From/To", "Amount"));
-                                Console.WriteLine("".PadRight(55, '-'));
-                                foreach (Transfer transfer in transfers)
-                                {
-                                    Console.WriteLine(transfer);
-                                }
-                            }
-                            else 
-                            {
-                                Console.WriteLine("Could not find your transfers");
-                            }
+                            DisplayTransfers(users, transfers);
                             break;
 
                         case 3: // View Pending Requests
@@ -127,6 +116,40 @@ namespace TenmoClient
                     }
                 }
             } while (menuSelection != 0);
+        }
+
+        private static void DisplayTransfers(List<User> users, List<Transfer> transfers)
+        {
+            if (transfers.Count > 0)
+            {
+                Console.WriteLine(string.Format("{0,-15}{1,-30}{2, -10} {3}", "Transfer ID", "From/To", "Amount","Status"));
+                Console.WriteLine("".PadRight(65, '-'));
+                foreach (Transfer transfer in transfers)
+                {
+                    foreach (User user in users)
+                    {
+                        if (transfer.TransferType == "From")
+                        {
+                            if (user.AccountId == transfer.AccountFrom)
+                            {
+                                transfer.OtherUser = user.Username;
+                            }
+                        }
+                        else
+                        {
+                            if (user.AccountId == transfer.AccountTo) 
+                            { 
+                            transfer.OtherUser = user.Username;
+                            }
+                        }
+                    }
+                    Console.WriteLine(transfer);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Could not find your transfers");
+            }
         }
 
         private void HandleUserRegister()

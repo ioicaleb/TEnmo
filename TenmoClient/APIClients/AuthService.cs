@@ -1,7 +1,9 @@
 ﻿using RestSharp;
 using RestSharp.Authenticators;
 using System;
+using System.Collections.Generic;
 using TenmoClient.Data;
+using TenmoClient.Models;
 
 namespace TenmoClient
 {
@@ -84,6 +86,15 @@ namespace TenmoClient
 
                 return true;
             }
+        }
+
+        public List<User> GetUsers()
+        {
+            RestRequest request = new RestRequest(API_BASE_URL + "login");
+
+            IRestResponse<List<User>> response = client.Get<List<User>>(request);
+
+            return response.Data;
         }
     }
 }
