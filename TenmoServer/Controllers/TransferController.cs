@@ -19,9 +19,9 @@ namespace TenmoServer.Controllers
         }
 
         [HttpGet("{userId}")]
-        public ActionResult GetPastTransfers(int userId)
+        public ActionResult GetPastTransfers(int userId, int transferId)
         {
-            return Ok(transfer.GetTransfers(userId));
+            return Ok(transfer.GetTransfers(userId, transferId));
         }
     }
 }

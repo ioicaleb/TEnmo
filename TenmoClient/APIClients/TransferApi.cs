@@ -32,9 +32,10 @@ namespace TenmoClient
             return newBalance.AccountBalance;
         }
 
-        public List<Transfer> GetTransfers(int userId)
+        public List<Transfer> GetTransfers(int userId, int transferId = 0)
         {
             RestRequest request = new RestRequest(baseURL + $"transfer/{userId}");
+            request.AddParameter("transferId", transferId);
 
             IRestResponse<List<Transfer>> response = client.Get<List<Transfer>>(request);
 

@@ -82,7 +82,8 @@ namespace TenmoClient
                             break;
 
                         case 2: // View Past Transfers
-                            List<Transfer> transfers = balanceApi.GetTransfers(UserService.UserId);
+                            int transferId = consoleService.PromptForTransferID("search");
+                            List<Transfer> transfers = balanceApi.GetTransfers(UserService.UserId, transferId);
                             if (transfers.Count > 0)
                             {
                                 Console.WriteLine(string.Format("{0,-15}{1,-30}{2}", "Transfer ID", "From/To", "Amount"));

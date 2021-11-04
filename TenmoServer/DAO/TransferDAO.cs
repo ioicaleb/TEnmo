@@ -11,18 +11,18 @@ namespace TenmoServer.DAO
     {
         private readonly string connStr;
 
-        private string SqlGetOtherUser = "";
-
         private readonly string SqlGetTransfers =
             "SELECT t.transfer_id, t.transfer_status_id, t.account_from, t.account_to, t.amount, a.account_id AS user_account_id, " +
-            "(SELECT DISTINCT username FROM transfers t " +
+                "(SELECT DISTINCT username FROM transfers t " +
+                "INNER JOIN accounts a ON(a.account_id = t.account_from OR a.account_id = t.account_to) " +
+                "INNER JOIN users u ON u.user_id = a.user_id " +
+                "WHERE (a.account_id != t.account_from OR a.account_id != t.account_to) " +
+                "AND u.user_id != @user_id) AS other_username " +
+            "FROM transfers t " +
             "INNER JOIN accounts a ON(a.account_id = t.account_from OR a.account_id = t.account_to) " +
             "INNER JOIN users u ON u.user_id = a.user_id " +
-            "WHERE (a.account_id != t.account_from OR a.account_id != t.account_to) " +
-            "AND u.user_id != @user_id) AS other_username " +
-            "FROM transfers t INNER JOIN accounts a ON(a.account_id = t.account_from OR a.account_id = t.account_to) " +
-            "INNER JOIN users u ON u.user_id = a.user_id " +
-            "WHERE a.user_id = @user_id";
+            "WHERE a.user_id = @user_id " +
+            "AND t.transfer_id = @transfer_id";
 
         public TransferDAO(string connStr)
         {
@@ -33,7 +33,7 @@ namespace TenmoServer.DAO
             this.connStr = connStr;
         }
 
-        public List<Transfer> GetTransfers(int userId)
+        public List<Transfer> GetTransfers(int userId, int transferId)
         {
             using (SqlConnection conn = new SqlConnection(connStr))
             {
@@ -43,6 +43,15 @@ namespace TenmoServer.DAO
                 {
                     cmd.Parameters.AddWithValue("@user_id", userId);
 
+                    if (transferId == 0)
+                    {
+                        cmd.Parameters.AddWithValue("@transfer_id", "*");
+                    }
+                    else
+                    {
+                        cmd.Parameters.AddWithValue("@transfer_id", transferId);
+                    }
+                    
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         List<Transfer> transfers = new List<Transfer>();
@@ -50,6 +59,7 @@ namespace TenmoServer.DAO
                         {
                             int statusInt = Convert.ToInt32(reader["transfer_status_id"]);
                             int userAccountId = Convert.ToInt32(reader["user_account_id"]);
+
                             Transfer transfer = new Transfer
                             {
                                 TransferId = Convert.ToInt32(reader["transfer_id"]),
