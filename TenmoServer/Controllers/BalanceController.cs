@@ -30,5 +30,11 @@ namespace TenmoServer.Controllers
             }
             return Ok(newBalance);
         }
+
+        [HttpPut]
+        public ActionResult UpdateBalance(Transfer transfer)
+        {
+            return Ok(transfer);
+        }
     }
 }

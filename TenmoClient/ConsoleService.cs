@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using TenmoClient.Data;
+using TenmoClient.Models;
 
 namespace TenmoClient
 {
@@ -69,6 +70,110 @@ namespace TenmoClient
             Console.WriteLine("");
 
             return pass;
+        }
+
+        public int GetInteger(string message)
+        {
+            string userInput;
+            int intValue;
+            int numberOfAttempts = 0;
+
+            do
+            {
+                if (numberOfAttempts > 0)
+                {
+                    Console.WriteLine("Invalid input format. Please try again");
+                }
+
+                Console.Write(message + " ");
+                userInput = Console.ReadLine();
+                numberOfAttempts++;
+                if (userInput.ToLower() == "r")
+                {
+                    Console.WriteLine();
+                    return -1;
+                }
+            }
+            while (!int.TryParse(userInput, out intValue) || intValue < 1);
+            Console.WriteLine();
+            return intValue;
+        }
+
+        public decimal GetDecimal(string message)
+        {
+            string userInput;
+            decimal decValue;
+            int numberOfAttempts = 0;
+
+            do
+            {
+                if (numberOfAttempts > 0)
+                {
+                    Console.WriteLine("Invalid input format. Please try again");
+                }
+
+                Console.Write(message + " ");
+                userInput = Console.ReadLine();
+                numberOfAttempts++;
+                if (userInput.ToLower() == "r")
+                {
+                    Console.WriteLine();
+                    return -1;
+                }
+            }
+            while (!decimal.TryParse(userInput, out decValue) || decValue < 1);
+            Console.WriteLine();
+            return decValue;
+        }
+
+        public static bool GetBool(string message)
+        {
+            string userInput;
+            bool boolValue;
+            int numberOfAttempts = 0;
+
+            do
+            {
+                if (numberOfAttempts > 0)
+                {
+                    Console.WriteLine("Invalid input format. Please try again");
+                }
+
+                Console.Write(message + " ");
+                userInput = Console.ReadLine();
+                numberOfAttempts++;
+                if (userInput.ToLower() == "s" || userInput.ToLower() == "send")
+                {
+                    userInput = "true";
+                }
+                else if (userInput.ToLower() == "r" || userInput.ToLower() == "request")
+                {
+                    userInput = "false";
+                }
+            }
+            while (!bool.TryParse(userInput, out boolValue));
+
+            Console.WriteLine();
+            return boolValue;
+        }
+
+        public Transfer GetTransferDetails(bool isSending)
+        {
+            Transfer transfer = new Transfer
+            {
+                OtherUserId = GetInteger("Which user ID do you want to transfer with?: "),
+                Amount = GetDecimal("How much do you want in the transfer?: "),
+            };
+
+            if (isSending)
+            {
+                transfer.TransferType = "Send";
+            }
+            else 
+            {
+                transfer.TransferType = "Request";
+            }
+            return transfer;
         }
     }
 }

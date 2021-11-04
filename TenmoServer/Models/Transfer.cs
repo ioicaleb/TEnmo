@@ -8,6 +8,7 @@ namespace TenmoServer.Models
     {
         public int TransferId { get; set; }
         public string TransferType { get; set; }
+        public string TransferDirection { get; set; }
         public string TransferStatus { get; set; }
         public int AccountFrom { get; set; }
         public int AccountTo { get; set;  }

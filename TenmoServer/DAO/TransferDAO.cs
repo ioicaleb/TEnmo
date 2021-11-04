@@ -12,7 +12,7 @@ namespace TenmoServer.DAO
         private readonly string connStr;
 
         private readonly string SqlGetTransfers =
-            "SELECT t.transfer_id, t.transfer_status_id, t.account_from, t.account_to, t.amount, a.account_id AS user_account_id " +
+            "SELECT t.transfer_id, t.transfer_type_id, t.transfer_status_id, t.account_from, t.account_to, t.amount, a.account_id AS user_account_id " +
             "FROM transfers t " +
             "INNER JOIN accounts a ON(a.account_id = t.account_from OR a.account_id = t.account_to) " +
             "INNER JOIN users u ON u.user_id = a.user_id " +
@@ -45,6 +45,7 @@ namespace TenmoServer.DAO
                         while (reader.Read())
                         {
                             int statusInt = Convert.ToInt32(reader["transfer_status_id"]);
+                            int typeInt = Convert.ToInt32(reader["transfer_type_id"]);
                             int userAccountId = Convert.ToInt32(reader["user_account_id"]);
 
                             Transfer transfer = new Transfer
@@ -55,7 +56,8 @@ namespace TenmoServer.DAO
                                 AccountFrom = Convert.ToInt32(reader["account_from"]),
                                 AccountTo = Convert.ToInt32(reader["account_to"])
                             };
-                            transfer.TransferType = SetTransferType(transfer.AccountTo, userAccountId);
+                            transfer.TransferDirection = SetTransferDirection(transfer.AccountTo, userAccountId);
+                            transfer.TransferType = SetTransferType(typeInt);
                             transfers.Add(transfer);
                         }
                         return transfers;
@@ -64,7 +66,7 @@ namespace TenmoServer.DAO
             }
         }
 
-        public string SetTransferType(int accountToId, int userAccountId)
+        public string SetTransferDirection(int accountToId, int userAccountId)
         {
             if (accountToId == userAccountId)
             {
@@ -73,6 +75,19 @@ namespace TenmoServer.DAO
             else
             {
                 return "To";
+            }
+        }
+
+        public string SetTransferType(int typeId)
+        {
+            switch (typeId)
+            {
+                case 1000:
+                    return "Request";
+                case 1001:
+                    return "Send";
+                default:
+                    return null;
             }
         }
 

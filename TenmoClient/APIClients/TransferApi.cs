@@ -37,13 +37,16 @@ namespace TenmoClient
             RestRequest request = new RestRequest(baseURL + $"transfer/{userId}");
             request.AddParameter("transferId", transferId);
 
-            IRestResponse<Transfer> response = client.Get<Transfer>(request);
+            IRestResponse<List<Transfer>> response = client.Get<List<Transfer>>(request);
 
             if (!HandleError(response))
             {
                 return null;
             }
-            return response.Data;
+
+            Transfer transfer = response.Data[0];
+
+            return transfer;
         }
 
         public List<Transfer> GetTransfers(int userId)
@@ -62,6 +65,32 @@ namespace TenmoClient
             return transfers;
         }
 
+        public Transfer CreateTransfer(Transfer transfer, int userId)
+        {
+            RestRequest request = new RestRequest(baseURL + $"transfer/{userId}");
+            request.AddJsonBody(transfer);
+
+            IRestResponse response = client.Post(request);
+
+            if (!HandleError(response))
+            {
+                return null;
+            }
+            if (transfer.TransferStatus == "Approved")
+            {
+                request = new RestRequest(baseURL + $"balance/{userId}");
+                request.AddJsonBody(transfer);
+
+                response = client.Put(request);
+
+                if (HandleError(response))
+                {
+                    Console.WriteLine("Transfer Complete!");
+                }
+            }
+            return transfer;
+        }
+
         private bool HandleError(IRestResponse response)
         {
             if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
@@ -76,7 +105,7 @@ namespace TenmoClient
             }
             if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                Console.WriteLine("Could not find your account information");
+                Console.WriteLine("Could not find account information");
                 return false;
             }
             if (!response.IsSuccessful)
