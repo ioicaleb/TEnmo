@@ -18,21 +18,11 @@ namespace TenmoServer.Security
 
         public string GenerateToken(int userId, string username)
         {
-            return GenerateToken(userId, username, string.Empty);
-        }
-
-        public string GenerateToken(int userId, string username, string role)
-        {
             List<Claim> claims = new List<Claim>()
             {
                 new Claim("sub", userId.ToString()),
                 new Claim("name", username),
             };
-
-            if (!string.IsNullOrWhiteSpace(role))
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-            }
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
