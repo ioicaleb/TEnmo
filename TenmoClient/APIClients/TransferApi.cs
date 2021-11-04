@@ -34,7 +34,7 @@ namespace TenmoClient
 
         public Transfer GetTransferById(int userId, int transferId)
         {
-            RestRequest request = new RestRequest(baseURL + $"transfer/{userId}");
+            RestRequest request = new RestRequest(baseURL + $"transfer/{userId}/");
             request.AddParameter("transferId", transferId);
 
             IRestResponse<Transfer> response = client.Get<Transfer>(request);
