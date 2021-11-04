@@ -19,6 +19,10 @@ namespace TenmoServer.DAO
             "WHERE a.user_id = @user_id " +
             "AND (@transfer_id = 0 OR t.transfer_id = @transfer_id)";
 
+        private readonly string SqlCreateTransfer =
+            "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from,account_to,amount) " +
+            "VALUES(@transfer_type_id , @transfer_status_id, @account_from, @account_to, @amount)";
+
         public TransferDAO(string connStr)
         {
             if (string.IsNullOrWhiteSpace(connStr))

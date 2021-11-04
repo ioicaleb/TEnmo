@@ -4,7 +4,7 @@ using TenmoClient.Models;
 
 namespace TenmoClient
 {
-    public class ObjectDisplay
+    public class DisplayHelper
     {
         public void DisplayPendingTransferList(List<User> users, List<Transfer> transfers)
         {

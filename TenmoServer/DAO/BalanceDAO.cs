@@ -10,6 +10,10 @@ namespace TenmoServer.DAO
     public class BalanceDAO : IBalanceDAO
     {
         private readonly string connStr;
+
+        private readonly string SqlSendTransfer = "UPDATE accounts SET balance = balance - @amount WHERE user_id = @user_id";
+
+        private readonly string SqlReceiveTransfer = "UPDATE accounts SET balance = balance + @amount WHERE user_id = @user_id";
         public BalanceDAO(string dbConnectionString)
         {
             if (string.IsNullOrWhiteSpace(dbConnectionString))

@@ -9,7 +9,7 @@ namespace TenmoClient
     {
         private readonly ConsoleService consoleService = new ConsoleService();
         private readonly AuthService authService = new AuthService();
-        private readonly ObjectDisplay display;
+        private readonly DisplayHelper display;
         private TransferApi transferApi;
         private bool quitRequested = false;
 
