@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Linq;
 using TenmoServer.DAO;
 using TenmoServer.Models;
 using TenmoServer.Security;
@@ -73,6 +75,19 @@ namespace TenmoServer.Controllers
             }
 
             return result;
+        }
+
+        [HttpGet]
+        [Authorize]
+        public IActionResult GetUsersList()
+        {
+            List<ReturnUser> users = userDAO.GetUsers();
+            if (!(users.Count > 0))
+            {
+                return BadRequest("Could not communicate with server");
+            }
+
+            return Ok(users.OrderBy(u=>u.Username));
         }
     }
 }

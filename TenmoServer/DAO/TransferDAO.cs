@@ -12,12 +12,7 @@ namespace TenmoServer.DAO
         private readonly string connStr;
 
         private readonly string SqlGetTransfers =
-            "SELECT t.transfer_id, t.transfer_status_id, t.account_from, t.account_to, t.amount, a.account_id AS user_account_id, " +
-                "(SELECT DISTINCT username FROM transfers t " +
-                "INNER JOIN accounts a ON(a.account_id = t.account_from OR a.account_id = t.account_to) " +
-                "INNER JOIN users u ON u.user_id = a.user_id " +
-                "WHERE (a.account_id != t.account_from OR a.account_id != t.account_to) " +
-                "AND u.user_id != @user_id) AS other_username " +
+            "SELECT t.transfer_id, t.transfer_status_id, t.account_from, t.account_to, t.amount, a.account_id AS user_account_id " +
             "FROM transfers t " +
             "INNER JOIN accounts a ON(a.account_id = t.account_from OR a.account_id = t.account_to) " +
             "INNER JOIN users u ON u.user_id = a.user_id " +
@@ -45,7 +40,7 @@ namespace TenmoServer.DAO
 
                     if (transferId == 0)
                     {
-                        cmd.Parameters.AddWithValue("@transfer_id", "*");
+                        cmd.Parameters.AddWithValue("@transfer_id", "t.transfer_id");
                     }
                     else
                     {
