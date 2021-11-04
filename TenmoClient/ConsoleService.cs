@@ -167,11 +167,11 @@ namespace TenmoClient
 
             if (isSending)
             {
-                transfer.TransferType = "Send";
+                transfer.TransferType = 1001;
             }
             else 
             {
-                transfer.TransferType = "Request";
+                transfer.TransferType = 1000;
             }
             return transfer;
         }

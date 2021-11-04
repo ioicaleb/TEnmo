@@ -48,20 +48,18 @@ namespace TenmoServer.DAO
                         List<Transfer> transfers = new List<Transfer>();
                         while (reader.Read())
                         {
-                            int statusInt = Convert.ToInt32(reader["transfer_status_id"]);
-                            int typeInt = Convert.ToInt32(reader["transfer_type_id"]);
                             int userAccountId = Convert.ToInt32(reader["user_account_id"]);
 
                             Transfer transfer = new Transfer
                             {
                                 TransferId = Convert.ToInt32(reader["transfer_id"]),
-                                TransferStatus = SetTransferStatus(statusInt),
+                                TransferStatus = Convert.ToInt32(reader["transfer_status_id"]),
                                 Amount = Convert.ToDecimal(reader["amount"]),
                                 AccountFrom = Convert.ToInt32(reader["account_from"]),
-                                AccountTo = Convert.ToInt32(reader["account_to"])
+                                AccountTo = Convert.ToInt32(reader["account_to"]),
+                                TransferType = Convert.ToInt32(reader["transfer_type_id"])
                             };
                             transfer.TransferDirection = SetTransferDirection(transfer.AccountTo, userAccountId);
-                            transfer.TransferType = SetTransferType(typeInt);
                             transfers.Add(transfer);
                         }
                         return transfers;
@@ -79,34 +77,6 @@ namespace TenmoServer.DAO
             else
             {
                 return "To";
-            }
-        }
-
-        public string SetTransferType(int typeId)
-        {
-            switch (typeId)
-            {
-                case 1000:
-                    return "Request";
-                case 1001:
-                    return "Send";
-                default:
-                    return null;
-            }
-        }
-
-        public string SetTransferStatus(int statusInt)
-        {
-            switch (statusInt)
-            {
-                case 2000:
-                    return "Pending";
-                case 2001:
-                    return "Approved";
-                case 2002:
-                    return "Rejected";
-                default:
-                    return null;
             }
         }
     }

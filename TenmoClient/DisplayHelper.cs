@@ -14,7 +14,7 @@ namespace TenmoClient
             Console.WriteLine("".PadRight(55, '-'));
             foreach (Transfer transfer in transfers)
             {
-                if (transfer.TransferStatus == "Pending")
+                if (transfer.TransferStatus == 2000)
                 {
                     foreach (User user in users)
                     {
@@ -44,21 +44,22 @@ namespace TenmoClient
             string fromUser = null;
             foreach (User user in users)
             {
-                if (transfer.TransferDirection == "From")
+                switch (transfer.TransferDirection)
                 {
-                    if (user.AccountId == transfer.AccountFrom)
-                    {
-                        fromUser = user.Username;
-                        toUser = "Me";
-                    }
-                }
-                else
-                {
-                    if (user.AccountId == transfer.AccountTo)
-                    {
-                        toUser = user.Username;
-                        fromUser = "Me";
-                    }
+                    case "From":
+                        if (user.AccountId == transfer.AccountFrom)
+                        {
+                            fromUser = user.Username;
+                            toUser = "Me";
+                        }
+                        break;
+                    default:
+                        if (user.AccountId == transfer.AccountTo)
+                        {
+                            toUser = user.Username;
+                            fromUser = "Me";
+                        }
+                        break;
                 }
             }
             Console.WriteLine("".PadRight(55, '-'));

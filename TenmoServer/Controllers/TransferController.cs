@@ -45,8 +45,8 @@ namespace TenmoServer.Controllers
             {
                 return Forbid();
             }
-            //if()
-            //newTransfer = transfer.CreateTransfer(newTransfer, userId);
+            
+            //newTransfer = transfer.CreateNewTransfer(newTransfer, userId);
             string location = $"/Transfer/{userId}?transferID={newTransfer.TransferId}";
             return Created(location, newTransfer);
         }

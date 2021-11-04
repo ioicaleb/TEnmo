@@ -76,7 +76,7 @@ namespace TenmoClient
             {
                 return null;
             }
-            if (transfer.TransferStatus == "Approved")
+            if (transfer.TransferStatus == 2001)
             {
                 request = new RestRequest(baseURL + $"balance/{userId}");
                 request.AddJsonBody(transfer);
