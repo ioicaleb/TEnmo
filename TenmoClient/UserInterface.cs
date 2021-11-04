@@ -80,7 +80,8 @@ namespace TenmoClient
                     switch (menuSelection)
                     {
                         case 1: // View Balance
-                            Console.WriteLine(balanceApi.GetBalance(UserService.UserId).ToString("C"));
+                            decimal balance = balanceApi.GetBalance(UserService.UserId);
+                            Console.WriteLine("Your Account Balance: " + balance.ToString("C"));
                             break;
 
                         case 2: // View All Transfers
