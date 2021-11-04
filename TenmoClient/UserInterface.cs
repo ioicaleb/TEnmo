@@ -74,6 +74,7 @@ namespace TenmoClient
                 }
                 else
                 {
+                    Console.WriteLine();
                     switch (menuSelection)
                     {
                         case 1: // View Balance
@@ -84,6 +85,8 @@ namespace TenmoClient
                             List<Transfer> transfers = balanceApi.GetTransfers(UserService.UserId);
                             if (transfers.Count > 0)
                             {
+                                Console.WriteLine(string.Format("{0,-15}{1,-30}{2}", "Transfer ID", "From/To", "Amount"));
+                                Console.WriteLine("".PadRight(55, '-'));
                                 foreach (Transfer transfer in transfers)
                                 {
                                     Console.WriteLine(transfer);
