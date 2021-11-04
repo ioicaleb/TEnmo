@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using TenmoServer.DAO;
 using TenmoServer.Models;
@@ -22,9 +23,10 @@ namespace TenmoServer.Controllers
         [HttpGet("{userId}")]
         public ActionResult GetBalance(int userId)
         {
+           
             Balance newBalance = balance.GetBalance(userId);
 
-            if (newBalance.UserID != userId)
+            if ( newBalance.UserID!= userId)
             {
                 return Forbid();
             }

@@ -11,9 +11,9 @@ namespace TenmoServer.DAO
     {
         private readonly string connStr;
 
-        private readonly string SqlSendTransfer = "UPDATE accounts SET balance = balance - @amount WHERE user_id = @user_id";
-
-        private readonly string SqlReceiveTransfer = "UPDATE accounts SET balance = balance + @amount WHERE user_id = @user_id";
+        private readonly string SqlUpdateBalances = 
+            "UPDATE accounts SET balance = balance - @amount WHERE user_id = @fromaccount_id "+
+            "UPDATE accounts SET balance = balance + @amount WHERE user_id = @toaccount_id";
         public BalanceDAO(string dbConnectionString)
         {
             if (string.IsNullOrWhiteSpace(dbConnectionString))
@@ -51,5 +51,36 @@ namespace TenmoServer.DAO
                 }
             }
         }
+
+        public bool UpdateBalance(Transfer transfer, int userId)
+        {
+            using(SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+
+                using (SqlCommand command = new SqlCommand(SqlUpdateBalances, conn))
+                {
+                    int fromAccount = 0;
+                    int toAccount = 0;
+                    if(transfer.TransferType == 1001)
+                    {
+                        fromAccount = userId;
+                        toAccount = transfer.OtherUserId;
+                    }
+                    else
+                    {
+                        toAccount = userId;
+                        fromAccount = transfer.OtherUserId;
+                    }
+                        command.Parameters.AddWithValue("@amount", transfer.Amount);
+                        command.Parameters.AddWithValue("@fromaccount_id", fromAccount);
+                        command.Parameters.AddWithValue("@toaccount_id", toAccount);
+                    
+                    command.ExecuteNonQuery();
+                    return true;
+                }
+            }
+        }
+        
     }
 }

@@ -21,7 +21,7 @@ namespace TenmoServer.DAO
 
         private readonly string SqlCreateTransfer =
             "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from,account_to,amount) " +
-            "VALUES(@transfer_type_id , @transfer_status_id, @account_from, @account_to, @amount)";
+            "VALUES(@transfer_type_id , @transfer_status_id, (SELECT user_id FROM accounts WHERE user_id = @account_from),(SELECT user_id FROM accounts WHERE user_id = @account_to), @amount)";
 
         public TransferDAO(string connStr)
         {
@@ -55,17 +55,47 @@ namespace TenmoServer.DAO
                             Transfer transfer = new Transfer
                             {
                                 TransferId = Convert.ToInt32(reader["transfer_id"]),
-                                TransferStatus = SetTransferStatus(statusInt),
-                                Amount = Convert.ToDecimal(reader["amount"]),
+                                TransferStatus = Convert.ToInt32(reader["transfer_status_id"]),
+                            Amount = Convert.ToDecimal(reader["amount"]),
                                 AccountFrom = Convert.ToInt32(reader["account_from"]),
                                 AccountTo = Convert.ToInt32(reader["account_to"])
                             };
                             transfer.TransferDirection = SetTransferDirection(transfer.AccountTo, userAccountId);
-                            transfer.TransferType = SetTransferType(typeInt);
+                            transfer.TransferType = Convert.ToInt32(reader["transfer_type_id"]);
                             transfers.Add(transfer);
                         }
                         return transfers;
                     }
+                }
+            }
+        }
+        public bool CreateNewTransfer(Transfer transfer, int userId)
+        {
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+                using(SqlCommand command = new SqlCommand(SqlCreateTransfer, conn))
+                {
+                    int fromAccount = 0;
+                    int toAccount = 0;
+                    if (transfer.TransferType == 1001)
+                    {
+                        fromAccount = userId;
+                        toAccount = transfer.OtherUserId;
+                    }
+                    else
+                    {
+                        toAccount = userId;
+                        fromAccount = transfer.OtherUserId;
+                    }
+
+                    command.Parameters.AddWithValue("@transfer_type_id", transfer.TransferType);
+                    command.Parameters.AddWithValue("@transfer_status_id", transfer.TransferStatus);
+                    command.Parameters.AddWithValue("@account_from", fromAccount);
+                    command.Parameters.AddWithValue("@account_to", toAccount);
+                    command.Parameters.AddWithValue("@amount", transfer.Amount);
+                    command.ExecuteNonQuery();
+                    return true;
                 }
             }
         }
