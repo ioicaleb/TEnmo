@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TenmoServer.DAO;
+using TenmoServer.Models;
 
 namespace TenmoServer.Controllers
 {
@@ -19,9 +20,14 @@ namespace TenmoServer.Controllers
         }
 
         [HttpGet("{userId}")]
-        public ActionResult GetPastTransfers(int userId, int transferId)
+        public ActionResult GetTransfers(int userId, int transferId)
         {
-            return Ok(transfer.GetTransfers(userId, transferId));
+            List<Transfer> transfers = transfer.GetTransfers(userId, transferId);
+            if (transfers.Count < 1)
+            {
+                return NotFound();
+            }
+            return Ok(transfers);
         }
     }
 }

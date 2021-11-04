@@ -60,11 +60,12 @@ namespace TenmoClient
                 Console.WriteLine();
                 Console.WriteLine("Welcome to TEnmo! Please make a selection: ");
                 Console.WriteLine("1: View your current balance");
-                Console.WriteLine("2: View your past transfers");
-                Console.WriteLine("3: View your pending requests");
-                Console.WriteLine("4: Send TE bucks");
-                Console.WriteLine("5: Request TE bucks");
-                Console.WriteLine("6: Log in as different user");
+                Console.WriteLine("2: View all transfers");
+                Console.WriteLine("3: Find transfer by ID");
+                Console.WriteLine("4: View your pending requests");
+                Console.WriteLine("5: Send TE bucks");
+                Console.WriteLine("6: Request TE bucks");
+                Console.WriteLine("7: Log in as different user");
                 Console.WriteLine("0: Exit");
                 Console.WriteLine("---------");
                 Console.Write("Please choose an option: ");
@@ -82,25 +83,38 @@ namespace TenmoClient
                             Console.WriteLine(balanceApi.GetBalance(UserService.UserId).ToString("C"));
                             break;
 
-                        case 2: // View Past Transfers
+                        case 2: // View All Transfers
+                            List<Transfer> transfers = balanceApi.GetTransfers(UserService.UserId);
+                            if (transfers.Count > 0)
+                            {
+                                DisplayTransferList(users, transfers);
+                            }
+                            break;
+
+                        case 3: // View Specific Transfer
                             int transferId = consoleService.PromptForTransferID("search");
-                            List<Transfer> transfers = balanceApi.GetTransfers(UserService.UserId, transferId);
-                            DisplayTransfers(users, transfers);
+                            Transfer transfer = balanceApi.GetTransferById(UserService.UserId, transferId);
+                            if (!(transfer == null))
+                            {
+                                DisplayTransfer(users, transfer);
+                            }
                             break;
 
-                        case 3: // View Pending Requests
+                        case 4: // View Pending Requests
                             Console.WriteLine("NOT IMPLEMENTED!"); // TODO: Implement me
                             break;
 
-                        case 4: // Send TE Bucks
+                        case 5: // Send TE Bucks
+                            DisplayUsersList(users);
                             Console.WriteLine("NOT IMPLEMENTED!"); // TODO: Implement me
                             break;
 
-                        case 5: // Request TE Bucks
+                        case 6: // Request TE Bucks
+                            DisplayUsersList(users);
                             Console.WriteLine("NOT IMPLEMENTED!"); // TODO: Implement me
                             break;
 
-                        case 6: // Log in as someone else
+                        case 7: // Log in as someone else
                             Console.WriteLine();
                             UserService.ClearLoggedInUser(); //wipe out previous login info
                             return; // Leaves the menu and should return as someone else
@@ -118,35 +132,76 @@ namespace TenmoClient
             } while (menuSelection != 0);
         }
 
-        private static void DisplayTransfers(List<User> users, List<Transfer> transfers)
+        private void DisplayTransfer(List<User> users, Transfer transfer)
         {
-            if (transfers.Count > 0)
+            string toUser = null;
+            string fromUser = null;
+            foreach (User user in users)
             {
-                Console.WriteLine(string.Format("{0,-15}{1,-30}{2}", "Transfer ID", "From/To", "Amount"));
-                Console.WriteLine("".PadRight(55, '-'));
-                foreach (Transfer transfer in transfers)
+                if (transfer.TransferType == "From")
                 {
-                    foreach (User user in users)
+                    if (user.AccountId == transfer.AccountFrom)
                     {
-                        if (transfer.TransferType == "From")
-                        {
-                            if (user.AccountId == transfer.AccountFromId)
-                            {
-                                transfer.OtherUser = user.Username;
-                            }
-                        }
-                        else
-                            if (user.AccountId == transfer.AccountToId)
+                        fromUser = user.Username;
+                        toUser = "Me";
+                    }
+                }
+                else
+                {
+                    if (user.AccountId == transfer.AccountTo)
+                    {
+                        toUser = user.Username;
+                        fromUser = "Me";
+                    }
+                }
+            }
+            Console.WriteLine("".PadRight(55, '-'));
+            Console.WriteLine("Transfer Details");
+            Console.WriteLine("".PadRight(55, '-'));
+            Console.WriteLine(string.Format("{0,7}{6}{1,7}{7}{2,7}{8}{3,7}{9}{4,7}{10}{5,7}{11}",
+                "ID: ", "From: ", "To: ", "Type: ", "Status: ", "Amount: ",
+                transfer.TransferId, fromUser, toUser, transfer.TransferType, transfer.TransferStatus, transfer.Amount));
+            Console.WriteLine(transfer);
+        }
+
+        private void DisplayTransferList(List<User> users, List<Transfer> transfers)
+        {
+            Console.WriteLine("".PadRight(55, '-'));
+            Console.WriteLine("Transfers");
+            Console.WriteLine(string.Format("{0,-15}{1,-30}{2,-10}{3}", "ID", "From/To", "Amount", "Status"));
+            Console.WriteLine("".PadRight(55, '-'));
+            foreach (Transfer transfer in transfers)
+            {
+                foreach (User user in users)
+                {
+                    if (transfer.TransferType == "From")
+                    {
+                        if (user.AccountId == transfer.AccountFrom)
                         {
                             transfer.OtherUser = user.Username;
                         }
                     }
-                    Console.WriteLine(transfer);
+                    else
+                    {
+                        if (user.AccountId == transfer.AccountTo)
+                        {
+                            transfer.OtherUser = user.Username;
+                        }
+                    }
                 }
+                Console.WriteLine(transfer);
             }
-            else
+        }
+
+        private void DisplayUsersList(List<User> users)
+        {
+            Console.WriteLine("".PadRight(55, '-'));
+            Console.WriteLine("Users");
+            Console.WriteLine(string.Format("{0,-15}{1}", "ID", "Name"));
+            Console.WriteLine("".PadRight(55, '-'));
+            foreach (User user in users)
             {
-                Console.WriteLine("Could not find your transfers");
+                Console.WriteLine(string.Format("{0,-15}{1}", user.UserId, user.Username));
             }
         }
 

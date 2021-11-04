@@ -45,7 +45,7 @@ namespace TenmoServer.DAO
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand("SELECT username, account_id FROM users u INNER JOIN accounts a ON a.user_id = u.user_id", conn);
+                SqlCommand cmd = new SqlCommand("SELECT username, u.user_id FROM users u", conn);
                 SqlDataReader reader = cmd.ExecuteReader();
 
                 if (reader.HasRows)
@@ -104,7 +104,7 @@ namespace TenmoServer.DAO
         {
             return new ReturnUser()
             {
-                AccountId = Convert.ToInt32(reader["account_id"]),
+                UserId = Convert.ToInt32(reader["user_id"]),
                 Username = Convert.ToString(reader["username"])
             };
         }

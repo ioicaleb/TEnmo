@@ -93,8 +93,17 @@ namespace TenmoClient
             RestRequest request = new RestRequest(API_BASE_URL + "login");
 
             IRestResponse<List<User>> response = client.Get<List<User>>(request);
-
-            return response.Data;
+            List<User> users = response.Data;
+            User currentUser = null;
+            foreach (User user in users)
+            {
+                if (user.UserId == UserService.UserId)
+                {
+                    currentUser = user;
+                }
+            }
+            users.Remove(currentUser);
+            return users;
         }
     }
 }

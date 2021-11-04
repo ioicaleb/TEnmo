@@ -17,7 +17,7 @@ namespace TenmoServer.DAO
             "INNER JOIN accounts a ON(a.account_id = t.account_from OR a.account_id = t.account_to) " +
             "INNER JOIN users u ON u.user_id = a.user_id " +
             "WHERE a.user_id = @user_id " +
-            "AND t.transfer_id = @transfer_id";
+            "AND (@transfer_id = 0 OR t.transfer_id = @transfer_id)";
 
         public TransferDAO(string connStr)
         {
@@ -37,16 +37,8 @@ namespace TenmoServer.DAO
                 using (SqlCommand cmd = new SqlCommand(SqlGetTransfers, conn))
                 {
                     cmd.Parameters.AddWithValue("@user_id", userId);
+                    cmd.Parameters.AddWithValue("@transfer_id", transferId);
 
-                    if (transferId == 0)
-                    {
-                        cmd.Parameters.AddWithValue("@transfer_id", "t.transfer_id");
-                    }
-                    else
-                    {
-                        cmd.Parameters.AddWithValue("@transfer_id", transferId);
-                    }
-                    
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         List<Transfer> transfers = new List<Transfer>();
@@ -61,8 +53,7 @@ namespace TenmoServer.DAO
                                 TransferStatus = SetTransferStatus(statusInt),
                                 Amount = Convert.ToDecimal(reader["amount"]),
                                 AccountFrom = Convert.ToInt32(reader["account_from"]),
-                                AccountTo = Convert.ToInt32(reader["account_to"]),
-                                OtherUser = Convert.ToString(reader["other_username"]),
+                                AccountTo = Convert.ToInt32(reader["account_to"])
                             };
                             transfer.TransferType = SetTransferType(transfer.AccountTo, userAccountId);
                             transfers.Add(transfer);

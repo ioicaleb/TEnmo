@@ -32,10 +32,24 @@ namespace TenmoClient
             return newBalance.AccountBalance;
         }
 
-        public List<Transfer> GetTransfers(int userId, int transferId = 0)
+        public Transfer GetTransferById(int userId, int transferId)
         {
             RestRequest request = new RestRequest(baseURL + $"transfer/{userId}");
             request.AddParameter("transferId", transferId);
+
+            IRestResponse<Transfer> response = client.Get<Transfer>(request);
+
+            if (!HandleError(response))
+            {
+                return null;
+            }
+            return response.Data;
+        }
+
+        public List<Transfer> GetTransfers(int userId)
+        {
+            RestRequest request = new RestRequest(baseURL + $"transfer/{userId}");
+            request.AddParameter("transferId", 0);
 
             IRestResponse<List<Transfer>> response = client.Get<List<Transfer>>(request);
 
@@ -58,6 +72,11 @@ namespace TenmoClient
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
                 Console.WriteLine("You must be logged in to view account information");
+                return false;
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                Console.WriteLine("Could not find your account information");
                 return false;
             }
             if (!response.IsSuccessful)
