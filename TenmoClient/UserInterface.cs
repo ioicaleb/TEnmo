@@ -154,6 +154,6 @@ namespace TenmoClient
                     balanceApi = new TransferApi(UserService.Token);
                 }
             }
-        }
+        }        
     }
 }

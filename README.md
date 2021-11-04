@@ -13,7 +13,7 @@ You should attempt to complete all of the following required use cases.
 2. **[COMPLETE]** As a user of the system, I need to be able to log in using my registered username and password.
    1. Logging in returns an Authentication Token. I need to include this token with all my subsequent interactions with the system outside of registering and logging in.
    2. The ability to log in has been provided in your starter code.
-3. As an authenticated user of the system, I need to be able to see my Account Balance.
+3.**[COMPLETE]** As an authenticated user of the system, I need to be able to see my Account Balance.
 4. As an authenticated user of the system, I need to be able to *send* a transfer of a specific amount of TE Bucks to a registered user.
    1. I should be able to choose from a list of users to send TE Bucks to.
    2. A transfer includes the User IDs of the from and to users and the amount of TE Bucks.

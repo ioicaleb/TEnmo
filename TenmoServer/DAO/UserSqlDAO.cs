@@ -45,7 +45,7 @@ namespace TenmoServer.DAO
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand("SELECT user_id, username, password_hash, salt FROM users", conn);
+                SqlCommand cmd = new SqlCommand("SELECT username, account_id FROM users u INNER JOIN accounts a ON a.user_id = u.user_id", conn);
                 SqlDataReader reader = cmd.ExecuteReader();
 
                 if (reader.HasRows)

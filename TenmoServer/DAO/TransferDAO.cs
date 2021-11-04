@@ -17,7 +17,7 @@ namespace TenmoServer.DAO
                 "INNER JOIN accounts a ON(a.account_id = t.account_from OR a.account_id = t.account_to) " +
                 "INNER JOIN users u ON u.user_id = a.user_id " +
                 "WHERE (a.account_id != t.account_from OR a.account_id != t.account_to) " +
-                "AND u.user_id != @user_id) AS other_username " +
+                "AND u.user_id != @user_id AND t.transfer_id = @transfer_id) AS other_username " +
             "FROM transfers t " +
             "INNER JOIN accounts a ON(a.account_id = t.account_from OR a.account_id = t.account_to) " +
             "INNER JOIN users u ON u.user_id = a.user_id " +
