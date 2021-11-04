@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Security.Claims;
 using TenmoServer.DAO;
 using TenmoServer.Models;
 
@@ -19,22 +20,44 @@ namespace TenmoServer.Controllers
             this.balance = balance;
         }
 
-        [HttpGet("{userId}")]
+        [HttpGet]
         public ActionResult GetBalance(int userId)
         {
-            Balance newBalance = balance.GetBalance(userId);
+            bool permittedUser = VerifyUser(userId);
 
-            if (newBalance.UserID != userId)
+            if (!permittedUser)
             {
                 return Forbid();
             }
+
+            Balance newBalance = balance.GetBalance(userId);
+
             return Ok(newBalance);
         }
 
         [HttpPut]
-        public ActionResult UpdateBalance(Transfer transfer)
+        public ActionResult UpdateBalance(Transfer transfer, int userId)
         {
+            bool permittedUser = VerifyUser(userId);
+            if (!permittedUser)
+            {
+                return Forbid();
+            }
+
             return Ok(transfer);
+        }
+
+        private bool VerifyUser(int userId)
+        {
+            string userSub = User.FindFirst("sub").Value;
+            int tokenUserId = int.Parse(userSub);
+
+            if (tokenUserId != userId)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

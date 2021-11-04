@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,7 @@ namespace TenmoServer.Controllers
 {
     [Route("/[controller]")]
     [ApiController]
+    [Authorize]
    public class TransferController : ControllerBase
     {
         private readonly ITransferDAO transfer;
@@ -19,15 +21,47 @@ namespace TenmoServer.Controllers
             this.transfer = transfer;
         }
 
-        [HttpGet("{userId}")]
+        [HttpGet]
         public ActionResult GetTransfers(int userId, int transferId)
         {
+            bool permittedUser = VerifyUser(userId);
+            if (!permittedUser)
+            {
+                return Forbid();
+            }
             List<Transfer> transfers = transfer.GetTransfers(userId, transferId);
             if (transfers.Count < 1)
             {
                 return NotFound();
             }
             return Ok(transfers);
+        }
+
+        [HttpPost("{userId}")]
+        public ActionResult CreateTransfer(Transfer newTransfer, int userId)
+        {
+            bool permittedUser = VerifyUser(userId);
+            if (!permittedUser)
+            {
+                return Forbid();
+            }
+            //if()
+            //newTransfer = transfer.CreateTransfer(newTransfer, userId);
+            string location = $"/Transfer/{userId}?transferID={newTransfer.TransferId}";
+            return Created(location, newTransfer);
+        }
+
+        private bool VerifyUser(int userId)
+        {
+            string userSub = User.FindFirst("sub").Value;
+            int tokenUserId = int.Parse(userSub);
+
+            if (tokenUserId != userId)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }
