@@ -9,5 +9,7 @@ namespace TenmoServer.DAO
    public interface IBalanceDAO
     {
         Balance GetBalance(int userId);
+
+        Balance UpdateBalance(Transfer transfer, int userId);
     }
 }

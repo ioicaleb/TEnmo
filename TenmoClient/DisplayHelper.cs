@@ -33,8 +33,8 @@ namespace TenmoClient
                             }
                         }
                     }
+                    Console.WriteLine(transfer);
                 }
-                Console.WriteLine(transfer);
             }
         }
 
@@ -67,7 +67,7 @@ namespace TenmoClient
             Console.WriteLine("".PadRight(55, '-'));
             Console.WriteLine(string.Format("{0,8}{6}\n{1,8}{7}\n{2,8}{8}\n{3,8}{9}\n{4,8}{10}\n{5,8}{11}",
                 "ID: ", "From: ", "To: ", "Type: ", "Status: ", "Amount: ",
-                transfer.TransferId, fromUser, toUser, transfer.TransferType, transfer.TransferStatus, transfer.Amount));
+                transfer.TransferId, fromUser, toUser, transfer.SetTransferTypeString(transfer.TransferType), transfer.SetTransferStatusString(transfer.TransferStatus), transfer.Amount));
         }
 
         public void DisplayTransferList(List<User> users, List<Transfer> transfers)

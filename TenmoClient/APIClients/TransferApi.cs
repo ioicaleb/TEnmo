@@ -19,7 +19,8 @@ namespace TenmoClient
 
         public decimal GetBalance(int userId)
         {
-            RestRequest request = new RestRequest(baseURL + $"balance/{userId}");
+            RestRequest request = new RestRequest(baseURL + $"balance");
+            request.AddParameter("userId", userId);
 
             IRestResponse<Balance> response = client.Get<Balance>(request);
 
@@ -34,8 +35,9 @@ namespace TenmoClient
 
         public Transfer GetTransferById(int userId, int transferId)
         {
-            RestRequest request = new RestRequest(baseURL + $"transfer/{userId}/");
+            RestRequest request = new RestRequest(baseURL + $"transfer");
             request.AddParameter("transferId", transferId);
+            request.AddParameter("userId", userId);
 
             IRestResponse<List<Transfer>> response = client.Get<List<Transfer>>(request);
 
@@ -51,8 +53,9 @@ namespace TenmoClient
 
         public List<Transfer> GetTransfers(int userId)
         {
-            RestRequest request = new RestRequest(baseURL + $"transfer/{userId}");
+            RestRequest request = new RestRequest(baseURL + $"transfer");
             request.AddParameter("transferId", 0);
+            request.AddParameter("userID", userId);
 
             IRestResponse<List<Transfer>> response = client.Get<List<Transfer>>(request);
 
@@ -70,23 +73,25 @@ namespace TenmoClient
             RestRequest request = new RestRequest(baseURL + $"transfer/{userId}");
             request.AddJsonBody(transfer);
 
-            IRestResponse response = client.Post(request);
+            IRestResponse<Transfer> response = client.Post<Transfer>(request);
 
             if (!HandleError(response))
             {
                 return null;
             }
+            transfer = response.Data;
             if (transfer.TransferStatus == 2001)
             {
                 request = new RestRequest(baseURL + $"balance/{userId}");
                 request.AddJsonBody(transfer);
 
-                response = client.Put(request);
+                IRestResponse response2 = client.Put(request);
 
-                if (HandleError(response))
-                {
+                if (HandleError(response2))
+                {;
                     Console.WriteLine("Transfer Complete!");
                 }
+                Console.WriteLine("There was a problem completing the transfer");
             }
             return transfer;
         }
