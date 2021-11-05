@@ -11,15 +11,10 @@ namespace TenmoServer.DAO
     {
         private readonly string connStr;
 
-<<<<<<< HEAD
+
         private readonly string SqlUpdateBalances = 
-            "UPDATE accounts SET balance = balance - @amount WHERE account_id = @fromaccount_id "+
-            "UPDATE accounts SET balance = balance + @amount WHERE account_id = @toaccount_id "+
-=======
-        private readonly string SqlUpdateBalances =
-            "UPDATE accounts SET balance = balance - @amount WHERE account_id = @account_from " +
-            "UPDATE accounts SET balance = balance + @amount WHERE account_id = @account_to " +
->>>>>>> 6b5c8ed27fe7493277e4ae4ead15b9e3c5734b1d
+            "UPDATE accounts SET balance = balance - @amount WHERE account_id = @account_from "+
+            "UPDATE accounts SET balance = balance + @amount WHERE account_id = @account_to "+
             "SELECT balance FROM accounts WHERE user_id = @user_id";
         public BalanceDAO(string dbConnectionString)
         {
@@ -74,23 +69,10 @@ namespace TenmoServer.DAO
 
                     Balance balance = new Balance
                     {
-<<<<<<< HEAD
-                        toAccount = userId;
-                        fromAccount = transfer.OtherUserId;
-                    }
-                        command.Parameters.AddWithValue("@amount", transfer.Amount);
-                        command.Parameters.AddWithValue("@fromaccount_id", fromAccount);
-                        command.Parameters.AddWithValue("@toaccount_id", toAccount);
-                        command.Parameters.AddWithValue("@user_id", userId);
-                    
-                    command.ExecuteNonQuery();
-                    return true;
-=======
                         AccountBalance = Convert.ToDecimal(command.ExecuteScalar())
                     };
                     return balance;
->>>>>>> 6b5c8ed27fe7493277e4ae4ead15b9e3c5734b1d
-                }
+}
             }
         }
 
