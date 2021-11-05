@@ -25,8 +25,8 @@ namespace TenmoServer.DAO
 
         private readonly string SqlCheckBalances =
             "SELECT balance FROM accounts a INNER JOIN transfers t ON(a.account_id = t.account_from OR a.account_id = t.account_to) WHERE transfer_id = @transfer_id AND user_id = @user_id " +
-            "UNION "+
-            "SELECT balance FROM accounts a INNER JOIN transfers t ON(a.account_id = t.account_from OR a.account_id = t.account_to) WHERE transfer_id =@transfer_id AND user_id != @user_id"; 
+            "UNION " +
+            "SELECT balance FROM accounts a INNER JOIN transfers t ON(a.account_id = t.account_from OR a.account_id = t.account_to) WHERE transfer_id =@transfer_id AND user_id != @user_id";
 
 
         private readonly string SqlUpdateTransfer =
@@ -110,18 +110,18 @@ namespace TenmoServer.DAO
                     {
                         transfer.TransferStatus = 2002;
                         UpdateTransfer(transfer);
-                    } 
+                    }
                     return transfer;
                 }
             }
         }
-        public bool CheckTransferBalances(int transferId, int userId,SqlConnection conn,decimal amount)
+        public bool CheckTransferBalances(int transferId, int userId, SqlConnection conn, decimal amount)
         {
             using (SqlCommand comm = new SqlCommand(SqlCheckBalances, conn))
             {
                 comm.Parameters.AddWithValue("@transfer_id", transferId);
                 comm.Parameters.AddWithValue("@user_id", userId);
-                using(SqlDataReader reader = comm.ExecuteReader())
+                using (SqlDataReader reader = comm.ExecuteReader())
                 {
                     decimal[] balances = new decimal[2];
                     while (reader.Read())
@@ -135,15 +135,15 @@ namespace TenmoServer.DAO
                     }
                     decimal userBalance = balances[0];
                     decimal otherUserBalance = balances[1];
-                     
-                    if(userBalance - amount < 0 || otherUserBalance - amount < 0 )
+
+                    if (userBalance - amount < 0 || otherUserBalance - amount < 0)
                     {
                         return false;
                     }
                 }
             }
-                
-            
+
+
             return true;
         }
 
@@ -155,7 +155,7 @@ namespace TenmoServer.DAO
 
                 using (SqlCommand cmd = new SqlCommand(SqlUpdateTransfer, conn))
                 {
-                    
+
                     cmd.Parameters.AddWithValue("@transfer_status_id", transfer.TransferStatus);
                     cmd.Parameters.AddWithValue("@transfer_id", transfer.TransferId);
 
