@@ -12,8 +12,9 @@ namespace TenmoServer.DAO
         private readonly string connStr;
 
         private readonly string SqlUpdateBalances = 
-            "UPDATE accounts SET balance = balance - @amount WHERE user_id = @fromaccount_id "+
-            "UPDATE accounts SET balance = balance + @amount WHERE user_id = @toaccount_id";
+            "UPDATE accounts SET balance = balance - @amount WHERE account_id = @fromaccount_id "+
+            "UPDATE accounts SET balance = balance + @amount WHERE account_id = @toaccount_id "+
+            "SELECT balance FROM accounts WHERE user_id = @user_id";
         public BalanceDAO(string dbConnectionString)
         {
             if (string.IsNullOrWhiteSpace(dbConnectionString))
@@ -75,6 +76,7 @@ namespace TenmoServer.DAO
                         command.Parameters.AddWithValue("@amount", transfer.Amount);
                         command.Parameters.AddWithValue("@fromaccount_id", fromAccount);
                         command.Parameters.AddWithValue("@toaccount_id", toAccount);
+                        command.Parameters.AddWithValue("@user_id", userId);
                     
                     command.ExecuteNonQuery();
                     return true;

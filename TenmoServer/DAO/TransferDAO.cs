@@ -21,7 +21,7 @@ namespace TenmoServer.DAO
 
         private readonly string SqlCreateTransfer =
             "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from,account_to,amount) " +
-            "VALUES(@transfer_type_id , @transfer_status_id, (SELECT user_id FROM accounts WHERE user_id = @account_from),(SELECT user_id FROM accounts WHERE user_id = @account_to), @amount)";
+            "VALUES(@transfer_type_id , @transfer_status_id, (SELECT account_id FROM accounts WHERE user_id = @account_from),(SELECT account_id FROM accounts WHERE user_id = @account_to), @amount)";
 
         public TransferDAO(string connStr)
         {
