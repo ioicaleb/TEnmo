@@ -10,5 +10,6 @@ namespace TenmoServer.DAO
     {
         public List<Transfer> GetTransfers(int accountId, int transferId);
         public Transfer CreateNewTransfer(Transfer transfer, int userId);
+        public bool UpdateTransfer(Transfer transfer);
     }
 }

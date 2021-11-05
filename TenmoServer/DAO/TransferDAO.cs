@@ -21,12 +21,14 @@ namespace TenmoServer.DAO
 
         private readonly string SqlCreateTransfer =
             "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from,account_to,amount) " +
-<<<<<<< HEAD
-            "VALUES(@transfer_type_id , @transfer_status_id, (SELECT account_id FROM accounts WHERE user_id = @account_from),(SELECT account_id FROM accounts WHERE user_id = @account_to), @amount)";
-=======
             "VALUES(@transfer_type_id , @transfer_status_id, (SELECT account_id FROM accounts WHERE user_id = @account_from),(SELECT account_id FROM accounts WHERE user_id = @account_to), @amount) " +
             "SELECT @@IDENTITY";
->>>>>>> 6b5c8ed27fe7493277e4ae4ead15b9e3c5734b1d
+
+        private readonly string SqlUpdateTransfer =
+            "UPDATE transfers SET transfer_type_id = @transfer_type_id, transfer_status_id = @transfer_status_id, account_from = @account_from, " +
+            "account_to = @account_to, amount = @amount WHERE transfer_id = @transfer_id " +
+            "SELECT transfer_id FROM transfers WHERE transfer_id = @transfer_id";
+
 
         public TransferDAO(string connStr)
         {
@@ -77,7 +79,7 @@ namespace TenmoServer.DAO
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 conn.Open();
-                using(SqlCommand command = new SqlCommand(SqlCreateTransfer, conn))
+                using (SqlCommand command = new SqlCommand(SqlCreateTransfer, conn))
                 {
                     int fromAccount = 0;
                     int toAccount = 0;
@@ -100,6 +102,33 @@ namespace TenmoServer.DAO
                     transfer.TransferId = Convert.ToInt32(command.ExecuteScalar());
                     return transfer;
                 }
+            }
+        }
+
+        public bool UpdateTransfer(Transfer transfer)
+        {
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+
+                using (SqlCommand cmd = new SqlCommand(SqlUpdateTransfer, conn))
+                {
+                    cmd.Parameters.AddWithValue("@transfer_id", transfer.TransferId);
+                    cmd.Parameters.AddWithValue("@transfer_type_id", transfer.TransferType);
+                    cmd.Parameters.AddWithValue("@transfer_status_id", transfer.TransferStatus);
+                    cmd.Parameters.AddWithValue("@account_from", transfer.AccountFrom);
+                    cmd.Parameters.AddWithValue("@account_to", transfer.AccountTo);
+                    cmd.Parameters.AddWithValue("@amount", transfer.Amount);
+
+                    string transferString = Convert.ToString(cmd.ExecuteScalar());
+
+                    if (!int.TryParse(transferString, out int transferId))
+                    {
+                        return false;
+                    }
+                    return true;
+                }
+
             }
         }
 
