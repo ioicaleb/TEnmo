@@ -115,16 +115,24 @@ namespace TenmoClient
                 RestRequest request2 = new RestRequest(baseURL + $"balance/{userId}");
                 request2.AddJsonBody(transfer);
 
+<<<<<<< HEAD
                 IRestResponse<decimal> response2 = client.Put<decimal>(request2);
+=======
+                IRestResponse<decimal> responseBalance = client.Put<decimal>(request2);
+>>>>>>> 8990a4894181f88bf3fdee9496b3179b43ce5cc7
 
-                if (!HandleError(response2))
+                if (!HandleError(responseBalance))
                 {
                     Console.WriteLine("There was a problem completing the transfer");
                     return false;
                 }
 
                 Console.WriteLine("Transfer Complete!");
+<<<<<<< HEAD
                 Console.WriteLine("Your new balance is: " + response2.Data.ToString("C"));
+=======
+                Console.WriteLine("Your new balance is: " + responseBalance.Data.ToString("C"));
+>>>>>>> 8990a4894181f88bf3fdee9496b3179b43ce5cc7
             }
             return true;
         }
