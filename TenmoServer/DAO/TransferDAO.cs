@@ -14,8 +14,7 @@ namespace TenmoServer.DAO
         private readonly string SqlGetTransfers =
             "SELECT t.transfer_id, t.transfer_type_id, t.transfer_status_id, t.account_from, t.account_to, t.amount, a.account_id AS user_account_id " +
             "FROM transfers t " +
-            "INNER JOIN accounts a ON(a.account_id = t.account_from OR a.account_id = t.account_to) " +
-            "INNER JOIN users u ON u.user_id = a.user_id " +
+            "INNER JOIN accounts a ON (a.account_id = t.account_from OR a.account_id = t.account_to) " +
             "WHERE a.user_id = @user_id " +
             "AND (@transfer_id = 0 OR t.transfer_id = @transfer_id)";
 
@@ -23,10 +22,18 @@ namespace TenmoServer.DAO
             "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from,account_to,amount) " +
             "VALUES(@transfer_type_id , @transfer_status_id, (SELECT account_id FROM accounts WHERE user_id = @account_from),(SELECT account_id FROM accounts WHERE user_id = @account_to), @amount) " +
             "SELECT @@IDENTITY ";
+
         private readonly string SqlCheckBalances =
             "SELECT balance FROM accounts a INNER JOIN transfers t ON(a.account_id = t.account_from OR a.account_id = t.account_to) WHERE transfer_id = @transfer_id AND user_id = @user_id " +
             "UNION "+
             "SELECT balance FROM accounts a INNER JOIN transfers t ON(a.account_id = t.account_from OR a.account_id = t.account_to) WHERE transfer_id =@transfer_id AND user_id != @user_id"; 
+
+
+        private readonly string SqlUpdateTransfer =
+            "UPDATE transfers SET transfer_status_id = @transfer_status_id " +
+             "WHERE transfer_id = @transfer_id " +
+            "SELECT transfer_id FROM transfers WHERE transfer_id = @transfer_id";
+
 
 
         public TransferDAO(string connStr)
@@ -78,7 +85,7 @@ namespace TenmoServer.DAO
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 conn.Open();
-                using(SqlCommand command = new SqlCommand(SqlCreateTransfer, conn))
+                using (SqlCommand command = new SqlCommand(SqlCreateTransfer, conn))
                 {
                     int fromAccount = 0;
                     int toAccount = 0;
@@ -102,6 +109,7 @@ namespace TenmoServer.DAO
                     if (!CheckTransferBalances(transfer.TransferId, userId, conn, transfer.Amount))
                     {
                         transfer.TransferStatus = 2002;
+                        UpdateTransfer(transfer);
                     } 
                     return transfer;
                 }
@@ -118,6 +126,7 @@ namespace TenmoServer.DAO
                     decimal[] balances = new decimal[2];
                     while (reader.Read())
                     {
+
 
                         int i = 0;
                         decimal balance = Convert.ToDecimal(reader["balance"]);
@@ -137,6 +146,32 @@ namespace TenmoServer.DAO
             
             return true;
         }
+
+        public bool UpdateTransfer(Transfer transfer)
+        {
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+
+                using (SqlCommand cmd = new SqlCommand(SqlUpdateTransfer, conn))
+                {
+                    
+                    cmd.Parameters.AddWithValue("@transfer_status_id", transfer.TransferStatus);
+                    cmd.Parameters.AddWithValue("@transfer_id", transfer.TransferId);
+
+                    string transferString = Convert.ToString(cmd.ExecuteScalar());
+
+                    if (!int.TryParse(transferString, out int transferId))
+                    {
+                        return false;
+                    }
+                    return true;
+                }
+
+            }
+        }
+
+
         public string SetTransferDirection(int accountToId, int userAccountId)
         {
             if (accountToId == userAccountId)

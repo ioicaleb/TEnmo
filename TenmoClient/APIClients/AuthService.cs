@@ -71,6 +71,7 @@ namespace TenmoClient
                 if (!string.IsNullOrWhiteSpace(response.Data.Message))
                 {
                     Console.WriteLine("An error message was received: " + response.Data.Message);
+                    return false;
                 }
                 else
                 {
@@ -86,6 +87,7 @@ namespace TenmoClient
 
                 return true;
             }
+            
         }
 
         public List<User> GetUsers()

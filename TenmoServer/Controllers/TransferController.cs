@@ -52,11 +52,22 @@ namespace TenmoServer.Controllers
                 if (newTransfer.TransferType == 1001 && newTransfer.TransferStatus != 2002)
                 {
                     newTransfer.TransferStatus = 2001;
+                    transfer.UpdateTransfer(newTransfer);
                 }
                 string location = $"/transfer/{userId}?transferId={newTransfer.TransferId}";
                 return Created(location, newTransfer);
             }
             return BadRequest();
+        }
+
+        [HttpPut]
+        public ActionResult UpdateTransferDetails(Transfer updatedTransfer)
+        {
+            if (transfer.UpdateTransfer(updatedTransfer))
+            {
+                return Ok(updatedTransfer);
+            }
+            return BadRequest("Could not update transfer details");
         }
 
         private bool VerifyUser(int userId)

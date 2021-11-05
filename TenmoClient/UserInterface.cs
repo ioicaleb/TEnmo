@@ -11,6 +11,7 @@ namespace TenmoClient
         private readonly AuthService authService = new AuthService();
         private readonly DisplayHelper display = new DisplayHelper();
         private TransferApi transferApi;
+        private RequestHandler requestHandler;
         private bool quitRequested = false;
 
         public void Start()
@@ -32,7 +33,9 @@ namespace TenmoClient
             Console.WriteLine("Welcome to TEnmo!");
             Console.WriteLine("1: Login");
             Console.WriteLine("2: Register");
+            Console.WriteLine();
             Console.Write("Please choose an option: ");
+            Console.WriteLine();
 
             if (!int.TryParse(Console.ReadLine(), out int loginRegister))
             {
@@ -41,6 +44,7 @@ namespace TenmoClient
             else if (loginRegister == 1)
             {
                 HandleUserLogin();
+                
             }
             else if (loginRegister == 2)
             {
@@ -119,6 +123,7 @@ namespace TenmoClient
                             if (pendingTransfers.Count > 0)
                             {
                                 display.DisplayPendingTransferList(users, pendingTransfers);
+                                consoleService.PromptForTransferID("manage");
                             }
                             else
                             {
@@ -184,6 +189,11 @@ namespace TenmoClient
                 if (authService.Login(loginUser))
                 {
                     transferApi = new TransferApi(UserService.Token);
+
+                }
+                else
+                {
+                    break;
                 }
             }
         }
