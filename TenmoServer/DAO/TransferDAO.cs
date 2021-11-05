@@ -24,8 +24,7 @@ namespace TenmoServer.DAO
             "SELECT @@IDENTITY ";
 
         private readonly string SqlUpdateTransfer =
-            "UPDATE transfers SET transfer_type_id = @transfer_type_id, transfer_status_id = @transfer_status_id, account_from = @account_from, " +
-            "account_to = @account_to, amount = @amount WHERE transfer_id = @transfer_id " +
+            "UPDATE transfers SET transfer_status_id = @transfer_status_id WHERE transfer_id = @transfer_id " +
             "SELECT transfer_id FROM transfers WHERE transfer_id = @transfer_id";
 
 
@@ -73,6 +72,7 @@ namespace TenmoServer.DAO
                 }
             }
         }
+
         public Transfer CreateNewTransfer(Transfer transfer, int userId)
         {
             using (SqlConnection conn = new SqlConnection(connStr))
@@ -113,11 +113,7 @@ namespace TenmoServer.DAO
                 using (SqlCommand cmd = new SqlCommand(SqlUpdateTransfer, conn))
                 {
                     cmd.Parameters.AddWithValue("@transfer_id", transfer.TransferId);
-                    cmd.Parameters.AddWithValue("@transfer_type_id", transfer.TransferType);
                     cmd.Parameters.AddWithValue("@transfer_status_id", transfer.TransferStatus);
-                    cmd.Parameters.AddWithValue("@account_from", transfer.AccountFrom);
-                    cmd.Parameters.AddWithValue("@account_to", transfer.AccountTo);
-                    cmd.Parameters.AddWithValue("@amount", transfer.Amount);
 
                     string transferString = Convert.ToString(cmd.ExecuteScalar());
 

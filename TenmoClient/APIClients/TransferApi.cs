@@ -99,6 +99,36 @@ namespace TenmoClient
             return transfer;
         }
 
+        public bool UpdateTransfer(Transfer transfer, int userId)
+        {
+            RestRequest request = new RestRequest(baseURL + $"transfer/{userId}");
+            request.AddJsonBody(transfer);
+
+            IRestResponse<Transfer> response = client.Put<Transfer>(request);
+
+            if (!HandleError(response))
+            {
+                return false;
+            }
+            if (transfer.TransferStatus == 2001)
+            {
+                RestRequest request2 = new RestRequest(baseURL + $"balance/{userId}");
+                request2.AddJsonBody(transfer);
+
+                IRestResponse<Balance> response2 = client.Put<Balance>(request2);
+
+                if (!HandleError(response2))
+                {
+                    Console.WriteLine("There was a problem completing the transfer");
+                    return false;
+                }
+
+                Console.WriteLine("Transfer Complete!");
+                Console.WriteLine("Your new balance is: " + response2.Data.AccountBalance.ToString("C"));
+            }
+            return true;
+        }
+
         private bool HandleError(IRestResponse response)
         {
             if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)

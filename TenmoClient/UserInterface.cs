@@ -7,7 +7,6 @@ namespace TenmoClient
 {
     public class UserInterface
     {
-        private readonly ConsoleService consoleService = new ConsoleService();
         private readonly AuthService authService = new AuthService();
         private readonly DisplayHelper display = new DisplayHelper();
         private TransferApi transferApi;
@@ -96,7 +95,7 @@ namespace TenmoClient
                             break;
 
                         case 3: // View Specific Transfer
-                            int transferId = consoleService.PromptForTransferID("search");
+                            int transferId = ConsoleService.PromptForTransferID("search");
                             Transfer transfer = transferApi.GetTransferById(UserService.UserId, transferId);
                             if (!(transfer == null))
                             {
@@ -120,7 +119,7 @@ namespace TenmoClient
                             if (pendingTransfers.Count > 0)
                             {
                                 display.DisplayPendingTransferList(users, pendingTransfers);
-                                consoleService.PromptForTransferID("manage");
+                                ManageTransfers(pendingTransfers);
                             }
                             else
                             {
@@ -130,7 +129,7 @@ namespace TenmoClient
 
                         case 5: // Send TE Bucks
                             display.DisplayUsersList(users);
-                            transfer = consoleService.GetTransferDetails(true);
+                            transfer = ConsoleService.GetTransferDetails(true);
                             transfer = transferApi.CreateTransfer(transfer, UserService.UserId);
                             if (transfer != null)
                             {
@@ -140,7 +139,7 @@ namespace TenmoClient
 
                         case 6: // Request TE Bucks
                             display.DisplayUsersList(users);
-                            transfer = consoleService.GetTransferDetails(false);
+                            transfer = ConsoleService.GetTransferDetails(false);
                             transfer = transferApi.CreateTransfer(transfer, UserService.UserId);
                             display.DisplayTransfer(users, transfer); // TODO: Implement me
                             break;
@@ -163,13 +162,42 @@ namespace TenmoClient
             } while (menuSelection != 0);
         }
 
+        private void ManageTransfers(List<Transfer> pendingTransfers)
+        {
+            bool leaveMenu = false;
+            while (!leaveMenu)
+            {
+                int transferId = ConsoleService.PromptForTransferID("manage");
+                Transfer selectedTransfer = new Transfer();
+                foreach (Transfer t in pendingTransfers)
+                {
+                    if (t.TransferId == transferId)
+                    {
+                        selectedTransfer = t;
+                    }
+                }
+                if (selectedTransfer != null)
+                {
+                    selectedTransfer = requestHandler.ManagePendingRequest(selectedTransfer);
+                    transferApi.UpdateTransfer(selectedTransfer, UserService.UserId);
+                }
+                else
+                {
+                    Console.WriteLine("Invalid transfer ID");
+                    Console.WriteLine();
+                }
+
+                leaveMenu = ConsoleService.GetBool("Are you finished managing transactions?(Y/N) ");
+            }
+        }
+
         private void HandleUserRegister()
         {
             bool isRegistered = false;
 
             while (!isRegistered) //will keep looping until user is registered
             {
-                LoginUser registerUser = consoleService.PromptForLogin();
+                LoginUser registerUser = ConsoleService.PromptForLogin();
                 isRegistered = authService.Register(registerUser);
             }
 
@@ -181,7 +209,7 @@ namespace TenmoClient
         {
             while (!UserService.IsLoggedIn) //will keep looping until user is logged in
             {
-                LoginUser loginUser = consoleService.PromptForLogin();
+                LoginUser loginUser = ConsoleService.PromptForLogin();
 
                 if (authService.Login(loginUser))
                 {

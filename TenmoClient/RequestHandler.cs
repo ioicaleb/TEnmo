@@ -7,15 +7,19 @@ namespace TenmoClient
 {
     public class RequestHandler
     {
-        public Transfer ManagePendingRequest(bool approved, Transfer transfer)
+        public Transfer ManagePendingRequest(Transfer transfer)
         {
-            if (approved)
+            if (transfer.TransferType == 1000 && transfer.TransferDirection == "To")
             {
-                transfer.TransferStatus = 2001;
-            }
-            else
-            {
-                transfer.TransferStatus = 2002;
+                bool approved = ConsoleService.GetApproveBool("Do you want to approve (A) or reject (r) the request?: ");
+                if (approved)
+                {
+                    transfer.TransferStatus = 2001;
+                }
+                else
+                {
+                    transfer.TransferStatus = 2002;
+                }
             }
             return transfer;
         }
