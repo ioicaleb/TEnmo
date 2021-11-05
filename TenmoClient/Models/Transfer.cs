@@ -15,15 +15,15 @@ namespace TenmoClient.Models
         public string OtherUser { get; set; }
         public int OtherUserId { get; set; }
         public decimal Amount { get; set; }
-        
+
         public override string ToString()
         {
             return string.Format("{0,-15}{1,-5}{2,-25}{3,-10}{4}",
-                TransferId, TransferDirection + ":", OtherUser, Amount.ToString("C"), SetTransferStatus(TransferStatus));
+                TransferId, TransferDirection + ":", OtherUser, Amount.ToString("C"), SetTransferStatusString(TransferStatus));
         }
 
 
-        public string SetTransferType(int typeId)
+        public string SetTransferTypeString(int typeId)
         {
             switch (typeId)
             {
@@ -36,7 +36,7 @@ namespace TenmoClient.Models
             }
         }
 
-        public string SetTransferStatus(int statusInt)
+        public string SetTransferStatusString(int statusInt)
         {
             switch (statusInt)
             {

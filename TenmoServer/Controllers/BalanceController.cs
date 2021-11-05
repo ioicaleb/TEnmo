@@ -37,16 +37,22 @@ namespace TenmoServer.Controllers
             return Ok(newBalance);
         }
 
-        [HttpPut]
-        public ActionResult UpdateBalance(Transfer transfer, int userId)
+        [HttpPut("{userId}")]
+        public ActionResult UpdateBalance(int userId, Transfer transfer)
         {
+            Transfer updatedTransfer = transfer;
             bool permittedUser = VerifyUser(userId);
             if (!permittedUser)
             {
                 return Forbid();
             }
+            Balance newBalance = balance.UpdateBalance(updatedTransfer, userId);
+            if (newBalance != null)
+            {
+                return Ok(newBalance);
+            }
+            return BadRequest();
 
-            return Ok(transfer);
         }
 
         private bool VerifyUser(int userId)

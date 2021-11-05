@@ -21,7 +21,8 @@ namespace TenmoServer.DAO
 
         private readonly string SqlCreateTransfer =
             "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from,account_to,amount) " +
-            "VALUES(@transfer_type_id , @transfer_status_id, (SELECT user_id FROM accounts WHERE user_id = @account_from),(SELECT user_id FROM accounts WHERE user_id = @account_to), @amount)";
+            "VALUES(@transfer_type_id , @transfer_status_id, (SELECT account_id FROM accounts WHERE user_id = @account_from),(SELECT account_id FROM accounts WHERE user_id = @account_to), @amount) " +
+            "SELECT @@IDENTITY";
 
         public TransferDAO(string connStr)
         {
@@ -67,7 +68,7 @@ namespace TenmoServer.DAO
                 }
             }
         }
-        public bool CreateNewTransfer(Transfer transfer, int userId)
+        public Transfer CreateNewTransfer(Transfer transfer, int userId)
         {
             using (SqlConnection conn = new SqlConnection(connStr))
             {
@@ -92,8 +93,8 @@ namespace TenmoServer.DAO
                     command.Parameters.AddWithValue("@account_from", fromAccount);
                     command.Parameters.AddWithValue("@account_to", toAccount);
                     command.Parameters.AddWithValue("@amount", transfer.Amount);
-                    command.ExecuteNonQuery();
-                    return true;
+                    transfer.TransferId = Convert.ToInt32(command.ExecuteScalar());
+                    return transfer;
                 }
             }
         }

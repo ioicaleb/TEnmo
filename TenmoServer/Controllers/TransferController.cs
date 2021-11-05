@@ -12,7 +12,7 @@ namespace TenmoServer.Controllers
     [Route("/[controller]")]
     [ApiController]
     [Authorize]
-   public class TransferController : ControllerBase
+    public class TransferController : ControllerBase
     {
         private readonly ITransferDAO transfer;
 
@@ -45,10 +45,18 @@ namespace TenmoServer.Controllers
             {
                 return Forbid();
             }
-            
-            //newTransfer = transfer.CreateNewTransfer(newTransfer, userId);
-            string location = $"/Transfer/{userId}?transferID={newTransfer.TransferId}";
-            return Created(location, newTransfer);
+            newTransfer = transfer.CreateNewTransfer(newTransfer, userId);
+            if (newTransfer != null)
+            {
+                newTransfer = transfer.GetTransfers(userId, newTransfer.TransferId)[0];
+                if (newTransfer.TransferType == 1001)
+                {
+                    newTransfer.TransferStatus = 2001;
+                }
+                string location = $"/transfer/{userId}?transferId={newTransfer.TransferId}";
+                return Created(location, newTransfer);
+            }
+            return BadRequest();
         }
 
         private bool VerifyUser(int userId)

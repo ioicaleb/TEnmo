@@ -55,6 +55,7 @@ namespace TenmoClient
         private void ShowMainMenu()
         {
             List<User> users = authService.GetUsers();
+            List<Transfer> transfers = new List<Transfer>();
             int menuSelection;
             do
             {
@@ -86,7 +87,7 @@ namespace TenmoClient
                             break;
 
                         case 2: // View All Transfers
-                            List<Transfer> transfers = transferApi.GetTransfers(UserService.UserId);
+                            transfers = transferApi.GetTransfers(UserService.UserId);
                             if (transfers.Count > 0)
                             {
                                 display.DisplayTransferList(users, transfers);
@@ -103,10 +104,25 @@ namespace TenmoClient
                             break;
 
                         case 4: // View Pending Requests
-                            transfers = transferApi.GetTransfers(UserService.UserId);
-                            if (transfers.Count > 0)
+                            if (transfers.Count < 1)
                             {
-                                display.DisplayPendingTransferList(users, transfers);
+                                transfers = transferApi.GetTransfers(UserService.UserId);
+                            }
+                            List<Transfer> pendingTransfers = new List<Transfer>();
+                            foreach (Transfer t in transfers)
+                            {
+                                if (t.TransferStatus == 2000)
+                                {
+                                    pendingTransfers.Add(t);
+                                }
+                            }
+                            if (pendingTransfers.Count > 0)
+                            {
+                                display.DisplayPendingTransferList(users, pendingTransfers);
+                            }
+                            else
+                            {
+                                Console.WriteLine("You have no pending transfers.");
                             }
                             break;
 
@@ -114,7 +130,10 @@ namespace TenmoClient
                             display.DisplayUsersList(users);
                             transfer = consoleService.GetTransferDetails(true);
                             transfer = transferApi.CreateTransfer(transfer, UserService.UserId);
-                            display.DisplayTransfer(users, transfer);
+                            if (transfer != null)
+                            {
+                                display.DisplayTransfer(users, transfer);
+                            }
                             break;
 
                         case 6: // Request TE Bucks
