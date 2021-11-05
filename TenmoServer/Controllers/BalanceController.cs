@@ -45,7 +45,9 @@ namespace TenmoServer.Controllers
             {
                 return Forbid();
             }
-            Balance newBalance = balance.UpdateBalance(transfer, userId);
+            Balance newBalance = new Balance();
+            newBalance = balance.UpdateBalance(transfer, userId);
+   
             if (newBalance != null)
             {
                 return Ok(newBalance);

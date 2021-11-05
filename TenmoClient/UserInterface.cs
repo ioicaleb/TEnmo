@@ -32,7 +32,9 @@ namespace TenmoClient
             Console.WriteLine("Welcome to TEnmo!");
             Console.WriteLine("1: Login");
             Console.WriteLine("2: Register");
+            Console.WriteLine();
             Console.Write("Please choose an option: ");
+            Console.WriteLine();
 
             if (!int.TryParse(Console.ReadLine(), out int loginRegister))
             {
@@ -41,6 +43,7 @@ namespace TenmoClient
             else if (loginRegister == 1)
             {
                 HandleUserLogin();
+                
             }
             else if (loginRegister == 2)
             {
@@ -214,6 +217,11 @@ namespace TenmoClient
                 if (authService.Login(loginUser))
                 {
                     transferApi = new TransferApi(UserService.Token);
+
+                }
+                else
+                {
+                    break;
                 }
             }
         }
