@@ -82,16 +82,19 @@ namespace TenmoClient
             transfer = response.Data;
             if (transfer.TransferStatus == 2001)
             {
-                request = new RestRequest(baseURL + $"balance/{userId}");
-                request.AddJsonBody(transfer);
+                RestRequest request2 = new RestRequest(baseURL + $"balance/{userId}");
+                request2.AddJsonBody(transfer);
 
-                IRestResponse response2 = client.Put(request);
+                IRestResponse<Balance> response2 = client.Put<Balance>(request2);
 
-                if (HandleError(response2))
-                {;
-                    Console.WriteLine("Transfer Complete!");
+                if (!HandleError(response2))
+                {
+                    Console.WriteLine("There was a problem completing the transfer");
+                    return null;
                 }
-                Console.WriteLine("There was a problem completing the transfer");
+
+                Console.WriteLine("Transfer Complete!");
+                Console.WriteLine("Your new balance is: " + response2.Data.AccountBalance.ToString("C"));
             }
             return transfer;
         }
