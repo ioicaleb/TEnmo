@@ -146,6 +146,10 @@ namespace TenmoClient
                 Console.WriteLine("Could not find account information");
                 return false;
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                Console.WriteLine("Could not complete transfer: " + response.ErrorMessage);
+            }
             if (!response.IsSuccessful)
             {
                 Console.WriteLine("There was a problem accessing your account information");

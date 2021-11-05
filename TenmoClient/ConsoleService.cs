@@ -88,11 +88,6 @@ namespace TenmoClient
                 Console.Write(message + " ");
                 userInput = Console.ReadLine();
                 numberOfAttempts++;
-                if (userInput.ToLower() == "r")
-                {
-                    Console.WriteLine();
-                    return -1;
-                }
             }
             while (!int.TryParse(userInput, out intValue) || intValue < 1);
             Console.WriteLine();
@@ -119,37 +114,6 @@ namespace TenmoClient
             while (!decimal.TryParse(userInput, out decValue) || decValue < 1);
             Console.WriteLine();
             return decValue;
-        }
-
-        public static bool GetApproveBool(string message)
-        {
-            string userInput;
-            bool boolValue;
-            int numberOfAttempts = 0;
-
-            do
-            {
-                if (numberOfAttempts > 0)
-                {
-                    Console.WriteLine("Invalid input format. Please try again");
-                }
-
-                Console.Write(message + " ");
-                userInput = Console.ReadLine();
-                numberOfAttempts++;
-                if (userInput.ToLower() == "a" || userInput.ToLower() == "approve")
-                {
-                    userInput = "true";
-                }
-                else if (userInput.ToLower() == "r" || userInput.ToLower() == "reject")
-                {
-                    userInput = "false";
-                }
-            }
-            while (!bool.TryParse(userInput, out boolValue));
-
-            Console.WriteLine();
-            return boolValue;
         }
 
         public static Transfer GetTransferDetails(bool isSending)

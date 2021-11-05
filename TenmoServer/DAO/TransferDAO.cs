@@ -19,19 +19,16 @@ namespace TenmoServer.DAO
             "AND (@transfer_id = 0 OR t.transfer_id = @transfer_id)";
 
         private readonly string SqlCreateTransfer =
-            "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from,account_to,amount) " +
-            "VALUES(@transfer_type_id , @transfer_status_id, (SELECT account_id FROM accounts WHERE user_id = @account_from),(SELECT account_id FROM accounts WHERE user_id = @account_to), @amount) " +
+            "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
+            "VALUES(@transfer_type_id , @transfer_status_id, (SELECT account_id FROM accounts WHERE user_id = @account_from), (SELECT account_id FROM accounts WHERE user_id = @account_to), @amount) " +
             "SELECT @@IDENTITY ";
 
         private readonly string SqlCheckBalances =
-            "SELECT balance FROM accounts a INNER JOIN transfers t ON(a.account_id = t.account_from OR a.account_id = t.account_to) WHERE transfer_id = @transfer_id AND user_id = @user_id " +
-            "UNION "+
-            "SELECT balance FROM accounts a INNER JOIN transfers t ON(a.account_id = t.account_from OR a.account_id = t.account_to) WHERE transfer_id =@transfer_id AND user_id != @user_id"; 
-
+            "SELECT DISTINCT balance FROM accounts a INNER JOIN transfers t ON a.account_id = t.account_from WHERE user_id = @user_id";
 
         private readonly string SqlUpdateTransfer =
             "UPDATE transfers SET transfer_status_id = @transfer_status_id " +
-             "WHERE transfer_id = @transfer_id " +
+            "WHERE transfer_id = @transfer_id " +
             "SELECT transfer_id FROM transfers WHERE transfer_id = @transfer_id";
 
 
@@ -107,70 +104,47 @@ namespace TenmoServer.DAO
                     command.Parameters.AddWithValue("@account_to", toAccount);
                     command.Parameters.AddWithValue("@amount", transfer.Amount);
                     transfer.TransferId = Convert.ToInt32(command.ExecuteScalar());
-                    if (!CheckTransferBalances(transfer.TransferId, userId, conn, transfer.Amount))
+                    if (!CheckTransferBalance(transfer, fromAccount, conn))
                     {
                         transfer.TransferStatus = 2002;
                         UpdateTransfer(transfer);
-                    } 
+                    }
                     return transfer;
                 }
             }
         }
-        public bool CheckTransferBalances(int transferId, int userId,SqlConnection conn,decimal amount)
+        public bool CheckTransferBalance(Transfer transfer, int fromAccount, SqlConnection conn)
         {
             using (SqlCommand comm = new SqlCommand(SqlCheckBalances, conn))
             {
-                comm.Parameters.AddWithValue("@transfer_id", transferId);
-                comm.Parameters.AddWithValue("@user_id", userId);
-                using(SqlDataReader reader = comm.ExecuteReader())
+                comm.Parameters.AddWithValue("@user_id", fromAccount);
+                decimal balance = Convert.ToDecimal(comm.ExecuteScalar());
+
+                if (balance - transfer.Amount < 0)
                 {
-                    decimal[] balances = new decimal[2];
-                    while (reader.Read())
-                    {
-
-
-                        int i = 0;
-                        decimal balance = Convert.ToDecimal(reader["balance"]);
-                        balances[i] = balance;
-                        i++;
-                    }
-                    decimal userBalance = balances[0];
-                    decimal otherUserBalance = balances[1];
-                     
-                    if(userBalance - amount < 0 || otherUserBalance - amount < 0 )
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
-                
-            
             return true;
         }
 
         public bool UpdateTransfer(Transfer transfer)
         {
-            using (SqlConnection conn = new SqlConnection(connStr))
+            using SqlConnection conn = new SqlConnection(connStr);
+            conn.Open();
+
+            using SqlCommand cmd = new SqlCommand(SqlUpdateTransfer, conn);
+            cmd.Parameters.AddWithValue("@transfer_id", transfer.TransferId);
+            cmd.Parameters.AddWithValue("@transfer_status_id", transfer.TransferStatus);
+
+            string transferString = Convert.ToString(cmd.ExecuteScalar());
+
+            if (!int.TryParse(transferString, out int transferId))
             {
-                conn.Open();
-
-                using (SqlCommand cmd = new SqlCommand(SqlUpdateTransfer, conn))
-                {
-                    cmd.Parameters.AddWithValue("@transfer_id", transfer.TransferId);
-                    cmd.Parameters.AddWithValue("@transfer_status_id", transfer.TransferStatus);
-
-                    string transferString = Convert.ToString(cmd.ExecuteScalar());
-
-                    if (!int.TryParse(transferString, out int transferId))
-                    {
-                        return false;
-                    }
-                    return true;
-                }
-
+                return false;
             }
+            return true;
         }
-
 
         public string SetTransferDirection(int accountToId, int userAccountId)
         {

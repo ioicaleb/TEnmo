@@ -38,7 +38,7 @@ namespace TenmoServer.Controllers
         }
 
         [HttpPost("{userId}")]
-        public ActionResult CreateTransfer(Transfer newTransfer, int userId)
+        public ActionResult CreateTransfer([FromBody]Transfer newTransfer, int userId)
         {
             bool permittedUser = VerifyUser(userId);
             if (!permittedUser)
@@ -60,14 +60,19 @@ namespace TenmoServer.Controllers
             return BadRequest();
         }
 
-        [HttpPut]
-        public ActionResult UpdateTransferDetails(Transfer updatedTransfer)
+        [HttpPut("{userId}")]
+        public ActionResult UpdateTransferDetails(Transfer updatedTransfer, int userId)
         {
+            bool permittedUser = VerifyUser(userId);
+            if (!permittedUser)
+            {
+                return Forbid();
+            }
             if (transfer.UpdateTransfer(updatedTransfer))
             {
                 return Ok(updatedTransfer);
             }
-            return BadRequest("Could not update transfer details");
+            return BadRequest("Could not find transfer details");
         }
 
         private bool VerifyUser(int userId)

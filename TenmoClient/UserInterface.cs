@@ -9,8 +9,8 @@ namespace TenmoClient
     {
         private readonly AuthService authService = new AuthService();
         private readonly DisplayHelper display = new DisplayHelper();
+        private readonly RequestHandler requestHandler = new RequestHandler();
         private TransferApi transferApi;
-        private RequestHandler requestHandler;
         private bool quitRequested = false;
 
         public void Start()
@@ -34,24 +34,30 @@ namespace TenmoClient
             Console.WriteLine("2: Register");
             Console.WriteLine();
             Console.Write("Please choose an option: ");
-            Console.WriteLine();
+
 
             if (!int.TryParse(Console.ReadLine(), out int loginRegister))
             {
+                Console.WriteLine();
                 Console.WriteLine("Invalid input. Please enter only a number.");
+                Console.WriteLine();
             }
             else if (loginRegister == 1)
             {
+                Console.WriteLine();
                 HandleUserLogin();
-                
+
             }
             else if (loginRegister == 2)
             {
+                Console.WriteLine();
                 HandleUserRegister();
             }
             else
             {
+                Console.WriteLine();
                 Console.WriteLine("Invalid selection.");
+                Console.WriteLine();
             }
         }
 
@@ -62,7 +68,6 @@ namespace TenmoClient
             int menuSelection;
             do
             {
-                Console.WriteLine();
                 Console.WriteLine("Welcome to TEnmo! Please make a selection: ");
                 Console.WriteLine("1: View your current balance");
                 Console.WriteLine("2: View all transfers");
@@ -87,6 +92,7 @@ namespace TenmoClient
                         case 1: // View Balance
                             decimal balance = transferApi.GetBalance(UserService.UserId);
                             Console.WriteLine("Your Account Balance: " + balance.ToString("C"));
+                            Console.WriteLine();
                             break;
 
                         case 2: // View All Transfers
@@ -95,6 +101,7 @@ namespace TenmoClient
                             {
                                 display.DisplayTransferList(users, transfers);
                             }
+                            Console.WriteLine();
                             break;
 
                         case 3: // View Specific Transfer
@@ -104,6 +111,7 @@ namespace TenmoClient
                             {
                                 display.DisplayTransfer(users, transfer);
                             }
+                            Console.WriteLine();
                             break;
 
                         case 4: // View Pending Requests
@@ -128,6 +136,7 @@ namespace TenmoClient
                             {
                                 Console.WriteLine("You have no pending transfers.");
                             }
+                            Console.Clear();
                             break;
 
                         case 5: // Send TE Bucks
@@ -138,21 +147,25 @@ namespace TenmoClient
                             {
                                 display.DisplayTransfer(users, transfer);
                             }
+                            Console.WriteLine();
                             break;
 
                         case 6: // Request TE Bucks
                             display.DisplayUsersList(users);
                             transfer = ConsoleService.GetTransferDetails(false);
                             transfer = transferApi.CreateTransfer(transfer, UserService.UserId);
-                            display.DisplayTransfer(users, transfer); // TODO: Implement me
+                            display.DisplayTransfer(users, transfer);
+                            Console.WriteLine();
                             break;
 
                         case 7: // Log in as someone else
                             Console.WriteLine();
                             UserService.ClearLoggedInUser(); //wipe out previous login info
+                            Console.Clear();
                             return; // Leaves the menu and should return as someone else
 
                         case 0: // Quit
+                            Console.Clear();
                             Console.WriteLine("Goodbye!");
                             quitRequested = true;
                             return;
@@ -171,6 +184,10 @@ namespace TenmoClient
             while (!leaveMenu)
             {
                 int transferId = ConsoleService.PromptForTransferID("manage");
+                if (transferId == 0)
+                {
+                    break;
+                }
                 Transfer selectedTransfer = new Transfer();
                 foreach (Transfer t in pendingTransfers)
                 {
@@ -179,7 +196,7 @@ namespace TenmoClient
                         selectedTransfer = t;
                     }
                 }
-                if (selectedTransfer != null)
+                if (selectedTransfer.TransferId != 0)
                 {
                     selectedTransfer = requestHandler.ManagePendingRequest(selectedTransfer);
                     transferApi.UpdateTransfer(selectedTransfer, UserService.UserId);
@@ -190,7 +207,7 @@ namespace TenmoClient
                     Console.WriteLine();
                 }
 
-                leaveMenu = ConsoleService.GetBool("Are you finished managing transactions?(Y/N) ");
+                leaveMenu = ConsoleService.GetBool("Are you finished managing transactions?(Y/N): ");
             }
         }
 
@@ -204,25 +221,23 @@ namespace TenmoClient
                 isRegistered = authService.Register(registerUser);
             }
 
-            Console.WriteLine("");
+            Console.WriteLine();
             Console.WriteLine("Registration successful. You can now log in.");
+            Console.WriteLine();
         }
 
         private void HandleUserLogin()
         {
-            while (!UserService.IsLoggedIn) //will keep looping until user is logged in
+            LoginUser loginUser = ConsoleService.PromptForLogin();
+
+            if (authService.Login(loginUser))
             {
-                LoginUser loginUser = ConsoleService.PromptForLogin();
-
-                if (authService.Login(loginUser))
-                {
-                    transferApi = new TransferApi(UserService.Token);
-
-                }
-                else
-                {
-                    break;
-                }
+                transferApi = new TransferApi(UserService.Token);
+                Console.Clear();
+            }
+            else
+            {
+                Console.WriteLine();
             }
         }
     }

@@ -11,14 +11,31 @@ namespace TenmoClient
         {
             if (transfer.TransferType == 1000 && transfer.TransferDirection == "To")
             {
-                bool approved = ConsoleService.GetApproveBool("Do you want to approve (A) or reject (r) the request?: ");
-                if (approved)
+                int approvedInt = ConsoleService.GetInteger("1: Approve\n2: Reject\n3: Do Nothing\n");
+                switch (approvedInt)
                 {
-                    transfer.TransferStatus = 2001;
+                    case 1:
+                        transfer.TransferStatus = 2001;
+                        break;
+                    case 2:
+                        transfer.TransferStatus = 2002;
+                        break;
+                    default:
+                        break;
+
                 }
-                else
+            }
+            else
+            {
+                int approvedInt = ConsoleService.GetInteger("1: Cancel Request\n2: Do Nothing\n");
+                switch (approvedInt)
                 {
-                    transfer.TransferStatus = 2002;
+                    case 1:
+                        transfer.TransferStatus = 2002;
+                        break;
+                    default:
+                        break;
+
                 }
             }
             return transfer;
