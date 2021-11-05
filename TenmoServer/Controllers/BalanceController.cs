@@ -38,22 +38,22 @@ namespace TenmoServer.Controllers
         }
 
         [HttpPut("{userId}")]
-        public ActionResult UpdateBalance([FromBody]Transfer transfer, int userId)
+        public ActionResult UpdateBalance([FromBody] Transfer transfer, int userId)
         {
             bool permittedUser = VerifyUser(userId);
             if (!permittedUser)
             {
                 return Forbid();
             }
-            Balance newBalance = new Balance();
-            newBalance = balance.UpdateBalance(transfer, userId);
-   
-            if (newBalance != null)
-            {
-                return Ok(newBalance);
-            }
-            return BadRequest();
 
+            decimal newBalance = balance.UpdateBalance(transfer, userId);
+
+            if (newBalance == -1)
+            {
+                return BadRequest("Transfer would overdraft account");
+            }
+
+            return Ok(newBalance);
         }
 
         private bool VerifyUser(int userId)

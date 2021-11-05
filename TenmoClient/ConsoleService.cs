@@ -5,14 +5,14 @@ using TenmoClient.Models;
 
 namespace TenmoClient
 {
-    public class ConsoleService
+    public static class ConsoleService
     {
         /// <summary>
         /// Prompts for transfer ID to view, approve, or reject
         /// </summary>
         /// <param name="action">String to print in prompt. Expected values are "Approve" or "Reject" or "View"</param>
         /// <returns>ID of transfers to view, approve, or reject</returns>
-        public int PromptForTransferID(string action)
+        public static int PromptForTransferID(string action)
         {
             Console.WriteLine("");
             Console.Write($"Please enter transfer ID to {action} (0 to cancel): ");
@@ -26,7 +26,7 @@ namespace TenmoClient
             return auctionId;
         }
 
-        public LoginUser PromptForLogin()
+        public static LoginUser PromptForLogin()
         {
             Console.Write("Username: ");
             string username = Console.ReadLine();
@@ -39,7 +39,7 @@ namespace TenmoClient
             };
         }
 
-        private string GetPasswordFromConsole(string displayMessage)
+        private static string GetPasswordFromConsole(string displayMessage)
         {
             string pass = "";
             Console.Write(displayMessage);
@@ -72,7 +72,7 @@ namespace TenmoClient
             return pass;
         }
 
-        public int GetInteger(string message)
+        public static int GetInteger(string message)
         {
             string userInput;
             int intValue;
@@ -88,18 +88,13 @@ namespace TenmoClient
                 Console.Write(message + " ");
                 userInput = Console.ReadLine();
                 numberOfAttempts++;
-                if (userInput.ToLower() == "r")
-                {
-                    Console.WriteLine();
-                    return -1;
-                }
             }
             while (!int.TryParse(userInput, out intValue) || intValue < 1);
             Console.WriteLine();
             return intValue;
         }
 
-        public decimal GetDecimal(string message)
+        public static decimal GetDecimal(string message)
         {
             string userInput;
             decimal decValue;
@@ -115,49 +110,13 @@ namespace TenmoClient
                 Console.Write(message + " ");
                 userInput = Console.ReadLine();
                 numberOfAttempts++;
-                if (userInput.ToLower() == "r")
-                {
-                    Console.WriteLine();
-                    return -1;
-                }
             }
             while (!decimal.TryParse(userInput, out decValue) || decValue < 1);
             Console.WriteLine();
             return decValue;
         }
 
-        public static bool GetBool(string message)
-        {
-            string userInput;
-            bool boolValue;
-            int numberOfAttempts = 0;
-
-            do
-            {
-                if (numberOfAttempts > 0)
-                {
-                    Console.WriteLine("Invalid input format. Please try again");
-                }
-
-                Console.Write(message + " ");
-                userInput = Console.ReadLine();
-                numberOfAttempts++;
-                if (userInput.ToLower() == "s" || userInput.ToLower() == "send")
-                {
-                    userInput = "true";
-                }
-                else if (userInput.ToLower() == "r" || userInput.ToLower() == "request")
-                {
-                    userInput = "false";
-                }
-            }
-            while (!bool.TryParse(userInput, out boolValue));
-
-            Console.WriteLine();
-            return boolValue;
-        }
-
-        public Transfer GetTransferDetails(bool isSending)
+        public static Transfer GetTransferDetails(bool isSending)
         {
             Transfer transfer = new Transfer
             {
@@ -174,6 +133,37 @@ namespace TenmoClient
                 transfer.TransferType = 1000;
             }
             return transfer;
+        }
+
+        internal static bool GetBool(string message)
+        {
+            string userInput;
+            bool boolValue;
+            int numberOfAttempts = 0;
+
+            do
+            {
+                if (numberOfAttempts > 0)
+                {
+                    Console.WriteLine("Invalid input format. Please try again");
+                }
+
+                Console.Write(message + " ");
+                userInput = Console.ReadLine();
+                numberOfAttempts++;
+                if (userInput.ToLower() == "y" || userInput.ToLower() == "yes")
+                {
+                    userInput = "true";
+                }
+                else if (userInput.ToLower() == "n" || userInput.ToLower() == "no")
+                {
+                    userInput = "false";
+                }
+            }
+            while (!bool.TryParse(userInput, out boolValue));
+
+            Console.WriteLine();
+            return boolValue;
         }
     }
 }

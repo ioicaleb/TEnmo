@@ -17,6 +17,9 @@ namespace TenmoServer.DAO
             "UPDATE accounts SET balance = balance + @amount WHERE account_id = @account_to " +
             "SELECT balance FROM accounts WHERE user_id = @user_id";
 
+        private readonly string SqlCheckBalances =
+            "SELECT balance FROM accounts a INNER JOIN transfers t ON a.account_id = t.account_from WHERE account_id = @account_id ";
+
         public BalanceDAO(string dbConnectionString)
         {
             if (string.IsNullOrWhiteSpace(dbConnectionString))
@@ -55,10 +58,8 @@ namespace TenmoServer.DAO
             }
         }
 
-        public Balance UpdateBalance(Transfer transfer, int userId)
+        public decimal UpdateBalance(Transfer transfer, int userId)
         {
-            
-
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 conn.Open();
@@ -69,18 +70,31 @@ namespace TenmoServer.DAO
                     command.Parameters.AddWithValue("@account_from", transfer.AccountFrom);
                     command.Parameters.AddWithValue("@account_to", transfer.AccountTo);
                     command.Parameters.AddWithValue("@user_id", userId);
-                   
 
-                    Balance balance = new Balance
+                    if (CheckTransferBalance(transfer, conn))
                     {
-                        AccountBalance = Convert.ToDecimal(command.ExecuteScalar())
-                    };
+                        return Convert.ToDecimal(command.ExecuteScalar());
+                    }
 
-                    return balance;
+                    return -1;
                 }
             }
+        }
 
+        public bool CheckTransferBalance(Transfer transfer, SqlConnection conn)
+        {
+            using (SqlCommand comm = new SqlCommand(SqlCheckBalances, conn))
+            {
+                comm.Parameters.AddWithValue("@account_id", transfer.AccountFrom);
 
+                decimal balance = Convert.ToDecimal(comm.ExecuteScalar());
+                if (balance - transfer.Amount < 0)
+                {
+                    return false;
+                }
+
+            }
+            return true;
         }
     }
 }

@@ -10,6 +10,6 @@ namespace TenmoServer.DAO
     {
         Balance GetBalance(int userId);
 
-        Balance UpdateBalance(Transfer transfer, int userId);
+        decimal UpdateBalance(Transfer transfer, int userId);
     }
 }
