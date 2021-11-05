@@ -24,14 +24,8 @@ namespace TenmoServer.DAO
             "SELECT @@IDENTITY ";
 
         private readonly string SqlCheckBalances =
-<<<<<<< HEAD
-            "SELECT balance FROM accounts a INNER JOIN transfers t ON(a.account_id = t.account_from OR a.account_id = t.account_to) WHERE transfer_id = @transfer_id AND user_id = @user_id " +
-            "UNION " +
-            "SELECT balance FROM accounts a INNER JOIN transfers t ON(a.account_id = t.account_from OR a.account_id = t.account_to) WHERE transfer_id =@transfer_id AND user_id != @user_id";
 
-=======
             "SELECT DISTINCT balance FROM accounts a INNER JOIN transfers t ON a.account_id = t.account_from WHERE user_id = @user_id";
->>>>>>> 447e032628d2bf784a1550bf37c3c5fbe113a705
 
         private readonly string SqlUpdateTransfer =
             "UPDATE transfers SET transfer_status_id = @transfer_status_id " +
@@ -120,37 +114,7 @@ namespace TenmoServer.DAO
                 }
             }
         }
-<<<<<<< HEAD
-        public bool CheckTransferBalances(int transferId, int userId, SqlConnection conn, decimal amount)
-        {
-            using (SqlCommand comm = new SqlCommand(SqlCheckBalances, conn))
-            {
-                comm.Parameters.AddWithValue("@transfer_id", transferId);
-                comm.Parameters.AddWithValue("@user_id", userId);
-                using (SqlDataReader reader = comm.ExecuteReader())
-                {
-                    decimal[] balances = new decimal[2];
-                    while (reader.Read())
-                    {
 
-
-                        int i = 0;
-                        decimal balance = Convert.ToDecimal(reader["balance"]);
-                        balances[i] = balance;
-                        i++;
-                    }
-                    decimal userBalance = balances[0];
-                    decimal otherUserBalance = balances[1];
-
-                    if (userBalance - amount < 0 || otherUserBalance - amount < 0)
-                    {
-                        return false;
-                    }
-                }
-            }
-
-
-=======
         public bool CheckTransferBalance(Transfer transfer, int fromAccount, SqlConnection conn)
         {
             using (SqlCommand comm = new SqlCommand(SqlCheckBalances, conn))
@@ -163,7 +127,7 @@ namespace TenmoServer.DAO
                     return false;
                 }
             }
->>>>>>> 447e032628d2bf784a1550bf37c3c5fbe113a705
+
             return true;
         }
 
@@ -172,27 +136,23 @@ namespace TenmoServer.DAO
             using SqlConnection conn = new SqlConnection(connStr);
             conn.Open();
 
-<<<<<<< HEAD
-                using (SqlCommand cmd = new SqlCommand(SqlUpdateTransfer, conn))
-                {
 
-                    cmd.Parameters.AddWithValue("@transfer_status_id", transfer.TransferStatus);
-                    cmd.Parameters.AddWithValue("@transfer_id", transfer.TransferId);
-=======
-            using SqlCommand cmd = new SqlCommand(SqlUpdateTransfer, conn);
-            cmd.Parameters.AddWithValue("@transfer_id", transfer.TransferId);
-            cmd.Parameters.AddWithValue("@transfer_status_id", transfer.TransferStatus);
->>>>>>> 447e032628d2bf784a1550bf37c3c5fbe113a705
-
-            string transferString = Convert.ToString(cmd.ExecuteScalar());
-
-            if (!int.TryParse(transferString, out int transferId))
+            using (SqlCommand cmd = new SqlCommand(SqlUpdateTransfer, conn))
             {
-                return false;
-            }
-            return true;
-        }
 
+                cmd.Parameters.AddWithValue("@transfer_status_id", transfer.TransferStatus);
+                cmd.Parameters.AddWithValue("@transfer_id", transfer.TransferId);
+
+
+                string transferString = Convert.ToString(cmd.ExecuteScalar());
+
+                if (!int.TryParse(transferString, out int transferId))
+                {
+                    return false;
+                }
+                return true;
+            }
+        }
         public string SetTransferDirection(int accountToId, int userAccountId)
         {
             if (accountToId == userAccountId)
