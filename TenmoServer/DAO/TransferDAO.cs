@@ -14,15 +14,14 @@ namespace TenmoServer.DAO
         private readonly string SqlGetTransfers =
             "SELECT t.transfer_id, t.transfer_type_id, t.transfer_status_id, t.account_from, t.account_to, t.amount, a.account_id AS user_account_id " +
             "FROM transfers t " +
-            "INNER JOIN accounts a ON(a.account_id = t.account_from OR a.account_id = t.account_to) " +
-            "INNER JOIN users u ON u.user_id = a.user_id " +
+            "INNER JOIN accounts a ON (a.account_id = t.account_from OR a.account_id = t.account_to) " +
             "WHERE a.user_id = @user_id " +
             "AND (@transfer_id = 0 OR t.transfer_id = @transfer_id)";
 
         private readonly string SqlCreateTransfer =
             "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from,account_to,amount) " +
             "VALUES(@transfer_type_id , @transfer_status_id, (SELECT account_id FROM accounts WHERE user_id = @account_from),(SELECT account_id FROM accounts WHERE user_id = @account_to), @amount) " +
-            "SELECT @@IDENTITY";
+            "SELECT @@IDENTITY ";
 
         private readonly string SqlUpdateTransfer =
             "UPDATE transfers SET transfer_type_id = @transfer_type_id, transfer_status_id = @transfer_status_id, account_from = @account_from, " +

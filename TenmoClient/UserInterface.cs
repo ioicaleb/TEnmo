@@ -11,6 +11,7 @@ namespace TenmoClient
         private readonly AuthService authService = new AuthService();
         private readonly DisplayHelper display = new DisplayHelper();
         private TransferApi transferApi;
+        private RequestHandler requestHandler;
         private bool quitRequested = false;
 
         public void Start()
@@ -119,6 +120,7 @@ namespace TenmoClient
                             if (pendingTransfers.Count > 0)
                             {
                                 display.DisplayPendingTransferList(users, pendingTransfers);
+                                consoleService.PromptForTransferID("manage");
                             }
                             else
                             {

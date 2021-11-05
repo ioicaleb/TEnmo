@@ -49,7 +49,7 @@ namespace TenmoServer.Controllers
             if (newTransfer != null)
             {
                 newTransfer = transfer.GetTransfers(userId, newTransfer.TransferId)[0];
-                if (newTransfer.TransferType == 1001 && newTransfer.TransferType != 2002)
+                if (newTransfer.TransferType == 1001 && newTransfer.TransferStatus != 2002)
                 {
                     newTransfer.TransferStatus = 2001;
                     transfer.UpdateTransfer(newTransfer);
