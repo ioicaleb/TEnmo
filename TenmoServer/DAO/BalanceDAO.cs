@@ -12,10 +12,10 @@ namespace TenmoServer.DAO
         private readonly string connStr;
 
 
-        private readonly string SqlUpdateBalances = 
-            "UPDATE accounts SET balance = balance - @amount WHERE account_id = @account_from "+
-            "UPDATE accounts SET balance = balance + @amount WHERE account_id = @account_to "+
-            "SELECT balance FROM accounts WHERE user_id = @user_id";
+        private readonly string SqlUpdateBalances =
+            "UPDATE accounts SET balance = balance - @amount WHERE account_id = @account_from " +
+            "UPDATE accounts SET balance = balance + @amount WHERE account_id = @account_to ";
+           
         public BalanceDAO(string dbConnectionString)
         {
             if (string.IsNullOrWhiteSpace(dbConnectionString))
@@ -56,6 +56,8 @@ namespace TenmoServer.DAO
 
         public Balance UpdateBalance(Transfer transfer, int userId)
         {
+            Balance balance = new Balance();
+
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 conn.Open();
@@ -66,15 +68,13 @@ namespace TenmoServer.DAO
                     command.Parameters.AddWithValue("@account_from", transfer.AccountFrom);
                     command.Parameters.AddWithValue("@account_to", transfer.AccountTo);
                     command.Parameters.AddWithValue("@user_id", userId);
+                    balance.AccountBalance = Convert.ToDecimal(command.ExecuteScalar());
 
-                    Balance balance = new Balance
-                    {
-                        AccountBalance = Convert.ToDecimal(command.ExecuteScalar())
-                    };
                     return balance;
-}
+                }
             }
-        }
 
+
+        }
     }
 }

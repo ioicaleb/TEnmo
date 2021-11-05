@@ -22,7 +22,11 @@ namespace TenmoServer.DAO
         private readonly string SqlCreateTransfer =
             "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from,account_to,amount) " +
             "VALUES(@transfer_type_id , @transfer_status_id, (SELECT account_id FROM accounts WHERE user_id = @account_from),(SELECT account_id FROM accounts WHERE user_id = @account_to), @amount) " +
-            "SELECT @@IDENTITY";
+            "SELECT @@IDENTITY ";
+        private readonly string SqlCheckBalances =
+            "SELECT balance FROM accounts a INNER JOIN transfers t ON(a.account_id = t.account_from OR a.account_id = t.account_to) WHERE transfer_id = @transfer_id AND user_id = @user_id " +
+            "UNION "+
+            "SELECT balance FROM accounts a INNER JOIN transfers t ON(a.account_id = t.account_from OR a.account_id = t.account_to) WHERE transfer_id =@transfer_id AND user_id != @user_id"; 
 
 
         public TransferDAO(string connStr)
@@ -95,11 +99,44 @@ namespace TenmoServer.DAO
                     command.Parameters.AddWithValue("@account_to", toAccount);
                     command.Parameters.AddWithValue("@amount", transfer.Amount);
                     transfer.TransferId = Convert.ToInt32(command.ExecuteScalar());
+                    if (!CheckTransferBalances(transfer.TransferId, userId, conn, transfer.Amount))
+                    {
+                        transfer.TransferStatus = 2002;
+                    } 
                     return transfer;
                 }
             }
         }
+        public bool CheckTransferBalances(int transferId, int userId,SqlConnection conn,decimal amount)
+        {
+            using (SqlCommand comm = new SqlCommand(SqlCheckBalances, conn))
+            {
+                comm.Parameters.AddWithValue("@transfer_id", transferId);
+                comm.Parameters.AddWithValue("@user_id", userId);
+                using(SqlDataReader reader = comm.ExecuteReader())
+                {
+                    decimal[] balances = new decimal[2];
+                    while (reader.Read())
+                    {
 
+                        int i = 0;
+                        decimal balance = Convert.ToDecimal(reader["balance"]);
+                        balances[i] = balance;
+                        i++;
+                    }
+                    decimal userBalance = balances[0];
+                    decimal otherUserBalance = balances[1];
+                     
+                    if(userBalance - amount < 0 || otherUserBalance - amount < 0 )
+                    {
+                        return false;
+                    }
+                }
+            }
+                
+            
+            return true;
+        }
         public string SetTransferDirection(int accountToId, int userAccountId)
         {
             if (accountToId == userAccountId)
