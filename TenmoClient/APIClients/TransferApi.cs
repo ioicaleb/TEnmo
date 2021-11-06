@@ -6,7 +6,6 @@ using TenmoClient.Models;
 
 namespace TenmoClient
 {
-
     public class TransferApi
     {
         private readonly string baseURL = "https://localhost:44315/";
@@ -101,19 +100,19 @@ namespace TenmoClient
             transfer = response.Data;
             if (transfer.TransferStatus == 2001) //If transfer is approved, updates the balances of both users
             {
-                RestRequest request2 = new RestRequest(baseURL + $"balance/{userId}");
-                request2.AddJsonBody(transfer);
+                RestRequest requestBalance = new RestRequest(baseURL + $"balance/{userId}");
+                requestBalance.AddJsonBody(transfer);
 
-                IRestResponse<decimal> response2 = client.Put<decimal>(request2);
+                IRestResponse<decimal> responseBalance = client.Put<decimal>(requestBalance);
 
-                if (!HandleError(response2))
+                if (!HandleError(responseBalance))
                 {
                     Console.WriteLine("There was a problem completing the transfer");
                     return null;
                 }
 
                 Console.WriteLine("Transfer Complete!");
-                Console.WriteLine("Your new balance is: " + response2.Data.ToString("C"));
+                Console.WriteLine("Your new balance is: " + responseBalance.Data.ToString("C"));
             }
             return transfer;
         }
@@ -137,10 +136,10 @@ namespace TenmoClient
             }
             if (transfer.TransferStatus == 2001)
             {
-                RestRequest request2 = new RestRequest(baseURL + $"balance/{userId}");
-                request2.AddJsonBody(transfer);
+                RestRequest requestBalance = new RestRequest(baseURL + $"balance/{userId}");
+                requestBalance.AddJsonBody(transfer);
 
-                IRestResponse<decimal> responseBalance = client.Put<decimal>(request2);
+                IRestResponse<decimal> responseBalance = client.Put<decimal>(requestBalance);
 
                 if (!HandleError(responseBalance))
                 {
