@@ -7,9 +7,9 @@ namespace TenmoClient
 {
     public class UserInterface
     {
-        private readonly AuthService authService = new AuthService();
-        private readonly DisplayHelper display = new DisplayHelper();
-        private readonly RequestHandler requestHandler = new RequestHandler();
+        private readonly AuthService authService = new AuthService(); //Handles user login
+        private readonly DisplayHelper display = new DisplayHelper(); //Handles the display of objects and menus
+        private readonly RequestHandler requestHandler = new RequestHandler(); //Handles approval and rejection of pending requests
         private TransferApi transferApi;
         private bool quitRequested = false;
 
@@ -72,7 +72,7 @@ namespace TenmoClient
                 Console.WriteLine("1: View your current balance");
                 Console.WriteLine("2: View all transfers");
                 Console.WriteLine("3: Find transfer by ID");
-                Console.WriteLine("4: View your pending requests");
+                Console.WriteLine("4: View your pending requests"); //Also allows user to approve or reject requests
                 Console.WriteLine("5: Send TE bucks");
                 Console.WriteLine("6: Request TE bucks");
                 Console.WriteLine("7: Log in as different user");
@@ -115,22 +115,19 @@ namespace TenmoClient
                             break;
 
                         case 4: // View Pending Requests
-                            if (transfers.Count < 1)
-                            {
-                                transfers = transferApi.GetTransfers(UserService.UserId);
-                            }
+                            transfers = transferApi.GetTransfers(UserService.UserId);//Gets an updated list of transfers
                             List<Transfer> pendingTransfers = new List<Transfer>();
-                            foreach (Transfer t in transfers)
+                            foreach (Transfer t in transfers) //Filters out any transfers that aren't pending
                             {
-                                if (t.TransferStatus == 2000)
+                                if (t.TransferStatus == 2000) //2000 = Pending
                                 {
                                     pendingTransfers.Add(t);
                                 }
                             }
                             if (pendingTransfers.Count > 0)
                             {
-                                display.DisplayPendingTransferList(users, pendingTransfers);
-                                ManageTransfers(pendingTransfers);
+                                display.DisplayPendingTransferList(users, pendingTransfers); //Display transfer list
+                                DisplayManageTransfersMenu(pendingTransfers); // Displays menu for approvals and rejections
                             }
                             else
                             {
@@ -140,10 +137,10 @@ namespace TenmoClient
                             break;
 
                         case 5: // Send TE Bucks
-                            display.DisplayUsersList(users);
-                            transfer = ConsoleService.GetTransferDetails(true);
-                            transfer = transferApi.CreateTransfer(transfer, UserService.UserId);
-                            if (transfer != null)
+                            display.DisplayUsersList(users); //Displays Username and UserID of other users in the system
+                            transfer = ConsoleService.GetTransferDetails(true); //Gets ID of other user in transfer and amount. True means current user is sending money
+                            transfer = transferApi.CreateTransfer(transfer, UserService.UserId); //Sends transfer details to server to log
+                            if (transfer != null) //If there is a problem with logging the details, transfer returns null
                             {
                                 display.DisplayTransfer(users, transfer);
                             }
@@ -152,7 +149,7 @@ namespace TenmoClient
 
                         case 6: // Request TE Bucks
                             display.DisplayUsersList(users);
-                            transfer = ConsoleService.GetTransferDetails(false);
+                            transfer = ConsoleService.GetTransferDetails(false); //False means the current user is receiving money
                             transfer = transferApi.CreateTransfer(transfer, UserService.UserId);
                             display.DisplayTransfer(users, transfer);
                             Console.WriteLine();
@@ -177,8 +174,11 @@ namespace TenmoClient
                 }
             } while (menuSelection != 0);
         }
-
-        private void ManageTransfers(List<Transfer> pendingTransfers)
+        /// <summary>
+        /// Takes in user input to allow user to approve or reject pending transfers
+        /// </summary>
+        /// <param name="pendingTransfers"></param>
+        private void DisplayManageTransfersMenu(List<Transfer> pendingTransfers)
         {
             bool leaveMenu = false;
             while (!leaveMenu)
@@ -198,7 +198,7 @@ namespace TenmoClient
                 }
                 if (selectedTransfer.TransferId != 0)
                 {
-                    selectedTransfer = requestHandler.ManagePendingRequest(selectedTransfer);
+                    selectedTransfer = requestHandler.ManagePendingRequest(selectedTransfer); //Prompts user to approve or deny requests
                     transferApi.UpdateTransfer(selectedTransfer, UserService.UserId);
                 }
                 else
@@ -210,7 +210,9 @@ namespace TenmoClient
                 leaveMenu = ConsoleService.GetBool("Are you finished managing transactions?(Y/N): ");
             }
         }
-
+        /// <summary>
+        /// Handles creating a new user
+        /// </summary>
         private void HandleUserRegister()
         {
             bool isRegistered = false;
@@ -225,7 +227,9 @@ namespace TenmoClient
             Console.WriteLine("Registration successful. You can now log in.");
             Console.WriteLine();
         }
-
+        /// <summary>
+        /// Handles logging in an existing user
+        /// </summary>
         private void HandleUserLogin()
         {
             LoginUser loginUser = ConsoleService.PromptForLogin();

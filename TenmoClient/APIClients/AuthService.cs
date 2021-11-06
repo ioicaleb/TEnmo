@@ -53,7 +53,11 @@ namespace TenmoClient
                 return true;
             }
         }
-
+        /// <summary>
+        /// Sends login details to the database for verification
+        /// </summary>
+        /// <param name="loginUser"></param>
+        /// <returns></returns>
         public bool Login(LoginUser loginUser)
         {
             RestRequest request = new RestRequest(API_BASE_URL + "login");
@@ -89,15 +93,18 @@ namespace TenmoClient
             }
             
         }
-
+        /// <summary>
+        /// Returns a list of usernames and IDs of other users
+        /// </summary>
+        /// <returns></returns>
         public List<User> GetUsers()
         {
             RestRequest request = new RestRequest(API_BASE_URL + "login");
 
             IRestResponse<List<User>> response = client.Get<List<User>>(request);
             List<User> users = response.Data;
-            User currentUser = null;
-            foreach (User user in users)
+            User currentUser = null; 
+            foreach (User user in users) //Removes the current user from the list of users displayed
             {
                 if (user.UserId == UserService.UserId)
                 {

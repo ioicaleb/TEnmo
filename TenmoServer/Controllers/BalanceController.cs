@@ -19,12 +19,16 @@ namespace TenmoServer.Controllers
         {
             this.balance = balance;
         }
-
+        /// <summary>
+        /// Checks the balance of the logged in user
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         [HttpGet]
         public ActionResult GetBalance(int userId)
         {
 
-            bool permittedUser = VerifyUser(userId);
+            bool permittedUser = VerifyUser(userId);//Checks that the ID of the account being accessed is the same as the users ID
 
             if (!permittedUser)
 
@@ -36,7 +40,13 @@ namespace TenmoServer.Controllers
 
             return Ok(newBalance);
         }
-
+        /// <summary>
+        /// Completes the transaction by changing the balances of both users involved in the transfer
+        /// Verifies that the transaction will not overdraft the account
+        /// </summary>
+        /// <param name="transfer"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         [HttpPut("{userId}")]
         public ActionResult UpdateBalance([FromBody] Transfer transfer, int userId)
         {
@@ -48,7 +58,7 @@ namespace TenmoServer.Controllers
 
             decimal newBalance = balance.UpdateBalance(transfer, userId);
 
-            if (newBalance == -1)
+            if (newBalance == -1)//If transaction would overdraft the account, the method returns -1 instead of completing the transfer
             {
                 return BadRequest("Transfer would overdraft account");
             }
@@ -56,9 +66,14 @@ namespace TenmoServer.Controllers
             return Ok(newBalance);
         }
 
+        /// <summary>
+        /// Checks that the user ID accessing the account is the same as the ID of the account being accessed
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         private bool VerifyUser(int userId)
         {
-            string userSub = User.FindFirst("sub").Value;
+            string userSub = User.FindFirst("sub").Value; //Checks the user token for the "sub" value which is the token's interpretation of the UserID
             int tokenUserId = int.Parse(userSub);
 
             if (tokenUserId != userId)

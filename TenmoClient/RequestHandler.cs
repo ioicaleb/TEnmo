@@ -7,6 +7,12 @@ namespace TenmoClient
 {
     public class RequestHandler
     {
+        /// <summary>
+        /// Prompts user to approve or deny requests and updates the transfer status
+        /// Allows user to cancel pending requests made to other users
+        /// </summary>
+        /// <param name="transfer"></param>
+        /// <returns></returns>
         public Transfer ManagePendingRequest(Transfer transfer)
         {
             if (transfer.TransferType == 1000 && transfer.TransferDirection == "To")

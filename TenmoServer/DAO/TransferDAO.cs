@@ -24,21 +24,12 @@ namespace TenmoServer.DAO
             "SELECT @@IDENTITY ";
 
         private readonly string SqlCheckBalances =
-<<<<<<< HEAD
-            "SELECT balance FROM accounts a INNER JOIN transfers t ON(a.account_id = t.account_from OR a.account_id = t.account_to) WHERE transfer_id = @transfer_id AND user_id = @user_id " +
-            "UNION " +
-            "SELECT balance FROM accounts a INNER JOIN transfers t ON(a.account_id = t.account_from OR a.account_id = t.account_to) WHERE transfer_id =@transfer_id AND user_id != @user_id";
-
-=======
             "SELECT DISTINCT balance FROM accounts a INNER JOIN transfers t ON a.account_id = t.account_from WHERE user_id = @user_id";
->>>>>>> 447e032628d2bf784a1550bf37c3c5fbe113a705
 
         private readonly string SqlUpdateTransfer =
             "UPDATE transfers SET transfer_status_id = @transfer_status_id " +
             "WHERE transfer_id = @transfer_id " +
             "SELECT transfer_id FROM transfers WHERE transfer_id = @transfer_id";
-
-
 
         public TransferDAO(string connStr)
         {
@@ -48,7 +39,12 @@ namespace TenmoServer.DAO
             }
             this.connStr = connStr;
         }
-
+        /// <summary>
+        /// Gets a list of transfers in which the user is either the "to" or "from" account
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="transferId"></param>
+        /// <returns></returns>
         public List<Transfer> GetTransfers(int userId, int transferId)
         {
             using (SqlConnection conn = new SqlConnection(connStr))
@@ -84,7 +80,13 @@ namespace TenmoServer.DAO
                 }
             }
         }
-
+        /// <summary>
+        /// Creates a record of a transfer without completing the transfer
+        /// Transfers default to Pending
+        /// </summary>
+        /// <param name="transfer"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         public Transfer CreateNewTransfer(Transfer transfer, int userId)
         {
             using (SqlConnection conn = new SqlConnection(connStr))
@@ -110,47 +112,30 @@ namespace TenmoServer.DAO
                     command.Parameters.AddWithValue("@account_from", fromAccount);
                     command.Parameters.AddWithValue("@account_to", toAccount);
                     command.Parameters.AddWithValue("@amount", transfer.Amount);
-                    transfer.TransferId = Convert.ToInt32(command.ExecuteScalar());
-                    if (!CheckTransferBalance(transfer, fromAccount, conn))
+                    try
                     {
-                        transfer.TransferStatus = 2002;
-                        UpdateTransfer(transfer);
+                        transfer.TransferId = Convert.ToInt32(command.ExecuteScalar());
+                        if (!CheckTransferBalance(transfer, fromAccount, conn))
+                        {
+                            transfer.TransferStatus = 2002;
+                            UpdateTransfer(transfer);
+                        }
+                    }
+                    catch (SqlException ex)
+                    {
+                        Console.WriteLine("There was a problem creating your transfer");
                     }
                     return transfer;
                 }
             }
         }
-<<<<<<< HEAD
-        public bool CheckTransferBalances(int transferId, int userId, SqlConnection conn, decimal amount)
-        {
-            using (SqlCommand comm = new SqlCommand(SqlCheckBalances, conn))
-            {
-                comm.Parameters.AddWithValue("@transfer_id", transferId);
-                comm.Parameters.AddWithValue("@user_id", userId);
-                using (SqlDataReader reader = comm.ExecuteReader())
-                {
-                    decimal[] balances = new decimal[2];
-                    while (reader.Read())
-                    {
-
-
-                        int i = 0;
-                        decimal balance = Convert.ToDecimal(reader["balance"]);
-                        balances[i] = balance;
-                        i++;
-                    }
-                    decimal userBalance = balances[0];
-                    decimal otherUserBalance = balances[1];
-
-                    if (userBalance - amount < 0 || otherUserBalance - amount < 0)
-                    {
-                        return false;
-                    }
-                }
-            }
-
-
-=======
+        /// <summary>
+        /// Checks that the transfer would not overdraft the "from account"
+        /// </summary>
+        /// <param name="transfer"></param>
+        /// <param name="fromAccount"></param>
+        /// <param name="conn"></param>
+        /// <returns></returns>
         public bool CheckTransferBalance(Transfer transfer, int fromAccount, SqlConnection conn)
         {
             using (SqlCommand comm = new SqlCommand(SqlCheckBalances, conn))
@@ -163,36 +148,40 @@ namespace TenmoServer.DAO
                     return false;
                 }
             }
->>>>>>> 447e032628d2bf784a1550bf37c3c5fbe113a705
             return true;
         }
-
+        /// <summary>
+        /// Sets the transfers status without completing the transfer and changes the status in the database
+        /// </summary>
+        /// <param name="transfer"></param>
+        /// <returns></returns>
         public bool UpdateTransfer(Transfer transfer)
         {
             using SqlConnection conn = new SqlConnection(connStr);
             conn.Open();
 
-<<<<<<< HEAD
-                using (SqlCommand cmd = new SqlCommand(SqlUpdateTransfer, conn))
-                {
-
-                    cmd.Parameters.AddWithValue("@transfer_status_id", transfer.TransferStatus);
-                    cmd.Parameters.AddWithValue("@transfer_id", transfer.TransferId);
-=======
-            using SqlCommand cmd = new SqlCommand(SqlUpdateTransfer, conn);
-            cmd.Parameters.AddWithValue("@transfer_id", transfer.TransferId);
-            cmd.Parameters.AddWithValue("@transfer_status_id", transfer.TransferStatus);
->>>>>>> 447e032628d2bf784a1550bf37c3c5fbe113a705
-
-            string transferString = Convert.ToString(cmd.ExecuteScalar());
-
-            if (!int.TryParse(transferString, out int transferId))
+            using (SqlCommand cmd = new SqlCommand(SqlUpdateTransfer, conn))
             {
-                return false;
-            }
-            return true;
-        }
 
+                cmd.Parameters.AddWithValue("@transfer_status_id", transfer.TransferStatus);
+                cmd.Parameters.AddWithValue("@transfer_id", transfer.TransferId);
+
+
+                string transferString = Convert.ToString(cmd.ExecuteScalar());
+
+                if (!int.TryParse(transferString, out int transferId))
+                {
+                    return false;
+                }
+                return true;
+            }
+        }
+        /// <summary>
+        /// Sets a string of whether the money is coming FROM the other user or TO the other user
+        /// </summary>
+        /// <param name="accountToId"></param>
+        /// <param name="userAccountId"></param>
+        /// <returns></returns>
         public string SetTransferDirection(int accountToId, int userAccountId)
         {
             if (accountToId == userAccountId)

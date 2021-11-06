@@ -25,7 +25,10 @@ namespace TenmoClient
 
             return auctionId;
         }
-
+        /// <summary>
+        /// Prompts user for login details
+        /// </summary>
+        /// <returns></returns>
         public static LoginUser PromptForLogin()
         {
             Console.Write("Username: ");
@@ -71,7 +74,11 @@ namespace TenmoClient
 
             return pass;
         }
-
+        /// <summary>
+        /// Prompts user for integer input
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
         public static int GetInteger(string message)
         {
             string userInput;
@@ -85,7 +92,7 @@ namespace TenmoClient
                     Console.WriteLine("Invalid input format. Please try again");
                 }
 
-                Console.Write(message + " ");
+                Console.Write(message);
                 userInput = Console.ReadLine();
                 numberOfAttempts++;
             }
@@ -93,7 +100,11 @@ namespace TenmoClient
             Console.WriteLine();
             return intValue;
         }
-
+        /// <summary>
+        /// Prompts user for decimal input
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
         public static decimal GetDecimal(string message)
         {
             string userInput;
@@ -115,7 +126,13 @@ namespace TenmoClient
             Console.WriteLine();
             return decValue;
         }
-
+        /// <summary>
+        /// Prompts user for other users ID and amount of transfer and sets transfer type
+        /// Type = 1001 (Send) if true
+        /// Type = 1000 (Request) if false
+        /// </summary>
+        /// <param name="isSending"></param>
+        /// <returns></returns>
         public static Transfer GetTransferDetails(bool isSending)
         {
             Transfer transfer = new Transfer
@@ -134,8 +151,12 @@ namespace TenmoClient
             }
             return transfer;
         }
-
-        internal static bool GetBool(string message)
+        /// <summary>
+        /// Prompts user for Y/N input
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        public static bool GetBool(string message)
         {
             string userInput;
             bool boolValue;
