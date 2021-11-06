@@ -98,6 +98,7 @@ namespace TenmoClient
                 return null;
             }
             transfer = response.Data;
+            
             if (transfer.TransferStatus == 2001) //If transfer is approved, updates the balances of both users
             {
                 RestRequest requestBalance = new RestRequest(baseURL + $"balance/{userId}");
@@ -139,11 +140,9 @@ namespace TenmoClient
                 RestRequest requestBalance = new RestRequest(baseURL + $"balance/{userId}");
                 requestBalance.AddJsonBody(transfer);
 
-<<<<<<< HEAD
-                IRestResponse<decimal> responseBalance = client.Put<decimal>(request2);
-=======
+
                 IRestResponse<decimal> responseBalance = client.Put<decimal>(requestBalance);
->>>>>>> be49dcbe482b2fc5ae640329e97263827bf269b6
+
 
                 if (!HandleError(responseBalance))
                 {
@@ -152,13 +151,10 @@ namespace TenmoClient
                 }
 
                 Console.WriteLine("Transfer Complete!");
-<<<<<<< HEAD
 
                 Console.WriteLine("Your new balance is: " + responseBalance.Data.ToString("C"));
 
-=======
-                Console.WriteLine("Your new balance is: " + responseBalance.Data.ToString("C"));
->>>>>>> be49dcbe482b2fc5ae640329e97263827bf269b6
+
             }
             return true;
         }

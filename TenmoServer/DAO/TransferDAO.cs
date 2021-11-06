@@ -112,19 +112,22 @@ namespace TenmoServer.DAO
                     command.Parameters.AddWithValue("@account_from", fromAccount);
                     command.Parameters.AddWithValue("@account_to", toAccount);
                     command.Parameters.AddWithValue("@amount", transfer.Amount);
-                    try
-                    {
-                        transfer.TransferId = Convert.ToInt32(command.ExecuteScalar());
-                        if (!CheckTransferBalance(transfer, fromAccount, conn))
+
+                    if (transfer != null)
+                        try
                         {
-                            transfer.TransferStatus = 2002;
-                            UpdateTransfer(transfer);
+                            transfer.TransferId = Convert.ToInt32(command.ExecuteScalar());
+                            if (!CheckTransferBalance(transfer, fromAccount, conn))
+                            {
+                                transfer.TransferStatus = 2002;
+                                UpdateTransfer(transfer);
+                            }
                         }
-                    }
-                    catch (SqlException ex)
-                    {
-                        Console.WriteLine("There was a problem creating your transfer");
-                    }
+                        catch (SqlException ex)
+                        {
+                            Console.WriteLine("There was a problem creating your transfer");
+                            return null;
+                        }
                     return transfer;
                 }
             }
