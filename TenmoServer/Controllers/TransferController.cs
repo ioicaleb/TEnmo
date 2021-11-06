@@ -20,7 +20,12 @@ namespace TenmoServer.Controllers
         {
             this.transfer = transfer;
         }
-
+        /// <summary>
+        /// Gets a list of all transfers in which the current user is either the sender or recipient
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="transferId"></param>
+        /// <returns></returns>
         [HttpGet]
         public ActionResult GetTransfers(int userId, int transferId)
         {
@@ -36,7 +41,13 @@ namespace TenmoServer.Controllers
             }
             return Ok(transfers);
         }
-
+        /// <summary>
+        /// Creates a log of a pending transaction
+        /// Approves the transaction if the sender is creating the transaction and the transaction has not already been rejected
+        /// </summary>
+        /// <param name="newTransfer"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         [HttpPost("{userId}")]
         public ActionResult CreateTransfer([FromBody]Transfer newTransfer, int userId)
         {
@@ -59,7 +70,12 @@ namespace TenmoServer.Controllers
             }
             return BadRequest();
         }
-
+        /// <summary>
+        /// Updates the transfer status
+        /// </summary>
+        /// <param name="updatedTransfer"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         [HttpPut("{userId}")]
         public ActionResult UpdateTransferDetails(Transfer updatedTransfer, int userId)
         {
@@ -74,7 +90,11 @@ namespace TenmoServer.Controllers
             }
             return BadRequest("Could not find transfer details");
         }
-
+        /// <summary>
+        /// Checks that the user creating the transaction is the current user
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         private bool VerifyUser(int userId)
         {
             string userSub = User.FindFirst("sub").Value;

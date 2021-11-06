@@ -29,7 +29,11 @@ namespace TenmoServer.DAO
 
             this.connStr = dbConnectionString;
         }
-
+        /// <summary>
+        /// Gets the balance of the current user
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         public Balance GetBalance(int userId)
         {
             using (SqlConnection conn = new SqlConnection(connStr))
@@ -57,7 +61,12 @@ namespace TenmoServer.DAO
                 }
             }
         }
-
+        /// <summary>
+        /// Checks that the "from account" won't be overdrawn and adjusts both balances based on the transfer details
+        /// </summary>
+        /// <param name="transfer"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         public decimal UpdateBalance(Transfer transfer, int userId)
         {
             using (SqlConnection conn = new SqlConnection(connStr))
@@ -80,7 +89,12 @@ namespace TenmoServer.DAO
                 }
             }
         }
-
+        /// <summary>
+        /// Checks that the "from account" won't be overdrawn
+        /// </summary>
+        /// <param name="transfer"></param>
+        /// <param name="conn"></param>
+        /// <returns></returns>
         public bool CheckTransferBalance(Transfer transfer, SqlConnection conn)
         {
             using (SqlCommand comm = new SqlCommand(SqlCheckBalances, conn))

@@ -15,7 +15,11 @@ namespace TenmoServer.DAO
         {
             connectionString = dbConnectionString;
         }
-
+        /// <summary>
+        /// Gets the user details of the user attempting to log in
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
         public User GetUser(string username)
         {
             User returnUser = null;
@@ -36,7 +40,10 @@ namespace TenmoServer.DAO
 
             return returnUser;
         }
-
+        /// <summary>
+        /// Gets the username, account ID, and user ID of all users in the system
+        /// </summary>
+        /// <returns></returns>
         public List<ReturnUser> GetUsers()
         {
             List<ReturnUser> returnUsers = new List<ReturnUser>();
@@ -45,7 +52,7 @@ namespace TenmoServer.DAO
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand("SELECT username, a.account_id,  u.user_id FROM users u INNER JOIN accounts a ON a.user_id = u.user_id", conn);
+                SqlCommand cmd = new SqlCommand("SELECT username, a.account_id, u.user_id FROM users u INNER JOIN accounts a ON a.user_id = u.user_id", conn);
                 SqlDataReader reader = cmd.ExecuteReader();
 
                 if (reader.HasRows)
@@ -58,10 +65,15 @@ namespace TenmoServer.DAO
 
                 }
             }
-
             return returnUsers;
         }
 
+        /// <summary>
+        /// Creates a new user with the provided details and sets their account balance to $1000
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
         public User AddUser(string username, string password)
         {
             IPasswordHasher passwordHasher = new PasswordHasher();
@@ -88,7 +100,11 @@ namespace TenmoServer.DAO
 
             return GetUser(username);
         }
-
+        /// <summary>
+        /// Sets the user details with data pulled from the database
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns></returns>
         private User GetUserFromReader(SqlDataReader reader)
         {
             return new User()
@@ -96,10 +112,14 @@ namespace TenmoServer.DAO
                 UserId = Convert.ToInt32(reader["user_id"]),
                 Username = Convert.ToString(reader["username"]),
                 PasswordHash = Convert.ToString(reader["password_hash"]),
-                Salt = Convert.ToString(reader["salt"]),
+                Salt = Convert.ToString(reader["salt"])
             };
         }
-
+        /// <summary>
+        /// Gets the user details that are safe for storing in a list
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns></returns>
         private ReturnUser GetUserForList(SqlDataReader reader)
         {
             return new ReturnUser()

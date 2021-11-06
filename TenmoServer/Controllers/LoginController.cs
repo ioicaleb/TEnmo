@@ -76,7 +76,10 @@ namespace TenmoServer.Controllers
 
             return result;
         }
-
+        /// <summary>
+        /// Gets a list of all users in the database and the data that is safe to share
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Authorize]
         public IActionResult GetUsersList()

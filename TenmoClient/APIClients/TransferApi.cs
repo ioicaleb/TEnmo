@@ -6,7 +6,6 @@ using TenmoClient.Models;
 
 namespace TenmoClient
 {
-
     public class TransferApi
     {
         private readonly string baseURL = "https://localhost:44315/";
@@ -16,7 +15,11 @@ namespace TenmoClient
         {
             client.Authenticator = new JwtAuthenticator(apiToken);
         }
-
+        /// <summary>
+        /// Gets user balance from database
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         public decimal GetBalance(int userId)
         {
             RestRequest request = new RestRequest(baseURL + $"balance");
@@ -32,7 +35,12 @@ namespace TenmoClient
             Balance newBalance = response.Data;
             return newBalance.AccountBalance;
         }
-
+        /// <summary>
+        /// Gets selected transfer details from database
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="transferId"></param>
+        /// <returns></returns>
         public Transfer GetTransferById(int userId, int transferId)
         {
             RestRequest request = new RestRequest(baseURL + $"transfer");
@@ -50,7 +58,11 @@ namespace TenmoClient
 
             return transfer;
         }
-
+        /// <summary>
+        /// Gets a list of transfers from database in which the user is the sender or recipient
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         public List<Transfer> GetTransfers(int userId)
         {
             RestRequest request = new RestRequest(baseURL + $"transfer");
@@ -67,7 +79,13 @@ namespace TenmoClient
             List<Transfer> transfers = response.Data;
             return transfers;
         }
-
+        /// <summary>
+        /// Sends the details of a new transfer to the database
+        /// If transfer is approved, updates the balances of both users
+        /// </summary>
+        /// <param name="transfer"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         public Transfer CreateTransfer(Transfer transfer, int userId)
         {
             RestRequest request = new RestRequest(baseURL + $"transfer/{userId}");
@@ -80,25 +98,31 @@ namespace TenmoClient
                 return null;
             }
             transfer = response.Data;
-            if (transfer.TransferStatus == 2001)
+            if (transfer.TransferStatus == 2001) //If transfer is approved, updates the balances of both users
             {
-                RestRequest request2 = new RestRequest(baseURL + $"balance/{userId}");
-                request2.AddJsonBody(transfer);
+                RestRequest requestBalance = new RestRequest(baseURL + $"balance/{userId}");
+                requestBalance.AddJsonBody(transfer);
 
-                IRestResponse<decimal> response2 = client.Put<decimal>(request2);
+                IRestResponse<decimal> responseBalance = client.Put<decimal>(requestBalance);
 
-                if (!HandleError(response2))
+                if (!HandleError(responseBalance))
                 {
                     Console.WriteLine("There was a problem completing the transfer");
                     return null;
                 }
 
                 Console.WriteLine("Transfer Complete!");
-                Console.WriteLine("Your new balance is: " + response2.Data.ToString("C"));
+                Console.WriteLine("Your new balance is: " + responseBalance.Data.ToString("C"));
             }
             return transfer;
         }
-
+        /// <summary>
+        /// Updates the transfer status of selected transfer
+        /// If approved, updates the balance of both users
+        /// </summary>
+        /// <param name="transfer"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         public bool UpdateTransfer(Transfer transfer, int userId)
         {
             RestRequest request = new RestRequest(baseURL + $"transfer/{userId}");
@@ -112,10 +136,14 @@ namespace TenmoClient
             }
             if (transfer.TransferStatus == 2001)
             {
-                RestRequest request2 = new RestRequest(baseURL + $"balance/{userId}");
-                request2.AddJsonBody(transfer);
+                RestRequest requestBalance = new RestRequest(baseURL + $"balance/{userId}");
+                requestBalance.AddJsonBody(transfer);
 
+<<<<<<< HEAD
                 IRestResponse<decimal> responseBalance = client.Put<decimal>(request2);
+=======
+                IRestResponse<decimal> responseBalance = client.Put<decimal>(requestBalance);
+>>>>>>> be49dcbe482b2fc5ae640329e97263827bf269b6
 
                 if (!HandleError(responseBalance))
                 {
@@ -124,13 +152,21 @@ namespace TenmoClient
                 }
 
                 Console.WriteLine("Transfer Complete!");
+<<<<<<< HEAD
 
                 Console.WriteLine("Your new balance is: " + responseBalance.Data.ToString("C"));
 
+=======
+                Console.WriteLine("Your new balance is: " + responseBalance.Data.ToString("C"));
+>>>>>>> be49dcbe482b2fc5ae640329e97263827bf269b6
             }
             return true;
         }
-
+        /// <summary>
+        /// Displays error message of returned status code and returns appropriate value
+        /// </summary>
+        /// <param name="response"></param>
+        /// <returns></returns>
         private bool HandleError(IRestResponse response)
         {
             if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
